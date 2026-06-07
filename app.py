@@ -27,94 +27,190 @@ st.set_page_config(
 # ── Estilos visuais
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500&display=swap');
 
-:root {
-    --bg:           #1a1425;
-    --sidebar:      #15101f;
-    --card:         #201e30;
-    --primary:      #7c5cfc;
-    --primary-glow: #a38bff;
-    --accent:       #4b3a6b;
-    --border:       #3a3550;
-    --muted:        #9e94b8;
-    --destructive:  #e8546b;
-    --text:         #e0e0f0;
-}
+    :root {
+        --bg:           #1a1425;
+        --sidebar:      #15101f;
+        --card:         #201e30;
+        --primary:      #7c5cfc;
+        --primary-glow: #a38bff;
+        --accent:       #4b3a6b;
+        --border:       #3a3550;
+        --muted:        #9e94b8;
+        --destructive:  #e8546b;
+        --text:         #e0e0f0;
+    }
 
-.stApp {
-    background-color: var(--bg);
-    font-family: 'Inter', sans-serif;
-    color: var(--text);
-}
+    .stApp {
+        background-color: var(--bg);
+        font-family: 'Inter', sans-serif;
+        color: var(--text);
+    }
 
-#MainMenu { visibility: hidden; }
-footer    { visibility: hidden; }
+    #MainMenu { visibility: hidden; }
+    footer    { visibility: hidden; }
 
-[data-testid="stDecoration"] { visibility: hidden; }
-[data-testid="stStatusWidget"] { visibility: hidden; }
+    [data-testid="stDecoration"] { visibility: hidden; }
+    [data-testid="stStatusWidget"] { visibility: hidden; }
 
-[data-testid="stHeader"] {
+    [data-testid="stHeader"] {
     background-color: var(--bg);
     border-bottom: 1px solid var(--border);
-}
+    }
 
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
 
-section[data-testid="stSidebar"] {
+    section[data-testid="stSidebar"] {
         background-color: var(--sidebar);
         border-right: 1px solid var(--border);
     }
-section[data-testid="stSidebar"] * {
+    section[data-testid="stSidebar"] * {
         color: var(--text) !important;
     }
-    
-.sidebar-header {
+
+    .sidebar-header {
         padding: 0.5rem 0 1rem;
         border-bottom: 1px solid var(--border);
         margin-bottom: 16px;
-    }   
-.sidebar-title {
+    }
+    .sidebar-title {
         font-family: 'Space Grotesk', sans-serif;
         font-size: 20px;
         font-weight: 600;
         color: var(--primary-glow);
-    }  
-.sidebar-subtitle {
+    }
+    .sidebar-subtitle {
         font-size: 12px;
         color: var(--muted);
         margin-top: 2px;
-    }   
-.section-label {
+    }
+    .section-label {
         font-size: 10px;
         font-weight: 600;
         color: var(--muted);
         text-transform: uppercase;
         letter-spacing: 0.06em;
         margin: 14px 0 8px;
-    }  
-    
-.stat-card {
+    }
+
+    .stat-card {
         background: var(--card);
         border: 1px solid var(--border);
         border-radius: 10px;
         padding: 14px;
         margin-bottom: 10px;
     }
-.stat-label {
+    .stat-label {
         font-size: 11px;
         color: var(--muted);
         text-transform: uppercase;
         letter-spacing: 0.05em;
         margin-bottom: 4px;
     }
-.stat-value {
+    .stat-value {
         font-size: 26px;
         font-weight: 600;
         font-family: 'Space Grotesk', sans-serif;
         color: var(--primary-glow);
+    }
+
+    .tag-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 7px 10px;
+        border-radius: 8px;
+        margin-bottom: 5px;
+        background: var(--card);
+        border: 1px solid var(--border);
+    }
+    .tag-name {
+        font-size: 13px;
+        color: var(--primary-glow);
+    }
+    .tag-count {
+        font-size: 11px;
+        background: var(--accent);
+        color: var(--primary-glow);
+        border-radius: 20px;
+        padding: 1px 8px;
+    }
+
+    .cal-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+    }
+    .cal-day-name {
+        text-align: center;
+        font-size: 10px;
+        color: var(--muted);
+        padding: 3px;
+        text-transform: uppercase;
+    }
+    .cal-day {
+        text-align: center;
+        font-size: 11px;
+        padding: 5px 2px;
+        border-radius: 4px;
+        color: var(--muted);
+        position: relative;
+    }
+    .cal-day.has-notes {
+        color: var(--text);
+        background: var(--card);
+        border: 1px solid var(--border);
+    }
+    .cal-day.has-compromisso::after {
+        content: "";
+        position: absolute;
+        bottom: 2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: #f59e0b;
+    }
+    .cal-day.today {
+        border: 1px solid var(--primary);
+        color: var(--primary-glow);
+        font-weight: 600;
+    }
+    .cal-day.selected {
+        background: var(--primary);
+        color: white;
+        border: none;
+    }
+    .cal-day.empty {
+        color: transparent;
+    }
+    
+    .nota-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 10px;
+        margin-bottom: 6px;
+    }
+    .nota-card-titulo {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text);
+    }
+    .nota-card-data {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+    }
+    .notas-scroll {
+        max-height: 180px;
+        overflow-y: auto;
+        padding-right: 4px;
+        margin-top: 6px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -179,16 +275,10 @@ def analisar_notas():
 
 def gerar_calendario(ano, mes, datas_com_notas, compromissos, dia_selecionado=None):
     hoje = date.today()
-    nomes_mes = {
-        1: "Janeiro", 2: "Fevereiro", 3: "Março",    4: "Abril",
-        5: "Maio",    6: "Junho",     7: "Julho",     8: "Agosto",
-        9: "Setembro", 10: "Outubro",  11: "Novembro", 12: "Dezembro"
-    }
-
     cal = calendar.monthcalendar(ano, mes)
     dias_semana = ["S", "T", "Q", "Q", "S", "S", "D"]
 
-    html = f'<div class="cal-header">{nomes_mes[mes]} {ano}</div>'
+    html = ""
     html += '<div class="cal-grid">'
 
     for d in dias_semana:
@@ -322,7 +412,8 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     # Cards de estatísticas
-    st.markdown('<div class="section-label">Visão geral</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-label">Visão geral</div>',
+                unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(f"""
@@ -338,3 +429,140 @@ with st.sidebar:
             <div class="stat-value">{dados['orfas']}</div>
         </div>
         """, unsafe_allow_html=True)
+
+    # Tags
+    st.markdown('<div class="section-label">Tags</div>',
+                unsafe_allow_html=True)
+    if dados["tags"]:
+        for tag, qtd in list(dados["tags"].items())[:8]:
+            st.markdown(f"""
+                        <div class="tag-item">
+                            <span class="tag-name">#{tag}<span>
+                            <span class="tag-count">#{qtd}<span>
+                        </div>
+                        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+                    <div style='font-size:12px; color:var(--muted);'>
+                        Nenhuma tag encontrada.
+                    </div>
+                    """, unsafe_allow_html=True)
+
+    # Calendário
+    st.markdown('<div class="section-label">Calendário</div>',
+                unsafe_allow_html=True)
+
+    nav1, nav2, nav3 = st.columns([1, 3, 1])
+    with nav1:
+        if st.button("‹", key="mes_ant"):
+            if st.session_state["mes_atual"] == 1:
+                st.session_state["mes_atual"] = 12
+                st.session_state["ano_atual"] -= 1
+            else:
+                st.session_state["mes_atual"] -= 1
+
+    with nav2:
+        nomes_mes = {
+            1: "Janeiro", 2: "Fevereiro", 3: "Março",    4: "Abril",
+            5: "Maio",    6: "Junho",     7: "Julho",     8: "Agosto",
+            9: "Setembro", 10: "Outubro",  11: "Novembro", 12: "Dezembro"
+        }
+
+        st.markdown(f"""
+                    <div style='text-align:center; font-size:12px; font-weight:600;
+                                color:var(--primary-glow); padding-top:6px;'>
+                        {nomes_mes[st.session_state['mes_atual']]} {st.session_state['ano_atual']}
+                    </div>
+                    """, unsafe_allow_html=True)
+
+    with nav3:
+        if st.button("›", key="mes_prox"):
+            if st.session_state["mes_atual"] == 12:
+                st.session_state["mes_atual"] = 1
+                st.session_state["ano_atual"] += 1
+            else:
+                st.session_state["mes_atual"] += 1
+
+    datas_com_notas = set(dados["datas_criacao"].values())
+
+    cal_html = gerar_calendario(
+        st.session_state["ano_atual"],
+        st.session_state["mes_atual"],
+        datas_com_notas,
+        dados["compromissos"],
+        st.session_state["dia_selecionado"],
+    )
+
+    st.markdown(cal_html, unsafe_allow_html=True)
+
+    # Filtro por dia
+    st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
+
+    mes_atual = st.session_state["mes_atual"]
+    ano_atual = st.session_state["ano_atual"]
+    _, total_dias = calendar.monthrange(ano_atual, mes_atual)
+
+    opcoes = ["Selecione um dia"] + [str(d) for d in range(1, total_dias + 1)]
+    dia_escolhido = st.selectbox(
+        "Filtrar por dia",
+        opcoes,
+        label_visibility="collapsed"
+    )
+
+    if dia_escolhido != "Selecione um dia...":
+        try:
+            st.session_state["dia_selecionado"] = date(
+                ano_atual,
+                mes_atual,
+                int(dia_escolhido)
+            )
+        except Exception:
+            st.session_state["dia_selecionado"] = None
+    else:
+        st.session_state["dia_selecionado"] = None
+
+    # Notas do dia selecionado
+    if st.session_state["dia_selecionado"]:
+        dia_sel = st.session_state["dia_selecionado"]
+        notas_dia = [n for n, d in dados["datas_criacao"].items()
+                     if d == dia_sel]
+
+        compromisso_dia = dados["compromissos"].get(dia_sel)
+        if compromisso_dia:
+            st.markdown(f"""
+            <div style='font-size:12px; color:#f59e0b; margin-top:6px;'>
+                🗓 {compromisso_dia}
+            </div>
+            """, unsafe_allow_html=True)
+
+        if notas_dia:
+            st.markdown(f"""
+            <div style='font-size:11px; color:var(--muted); margin-top:8px;'>
+                {len(notas_dia)} nota(s) em {dia_sel.strftime('%d/%m/%Y')}
+            </div>
+            """, unsafe_allow_html=True)
+
+            cards_html = '<div class="notas-scroll">'
+            for nota in notas_dia:
+                data_formatada = dia_sel.strftime('%d/%m/%Y')
+                cards_html += f'<div class="nota-card">'
+                cards_html += f'<div class="nota-card-titulo">📄 {nota}</div>'
+                cards_html += f'<div class="nota-card-data">{data_formatada}</div>'
+                cards_html += f'</div>'
+            cards_html += '</div>'
+            st.markdown(cards_html, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div style='font-size:12px; color:var(--muted); margin-top:8px;'>
+                Nenhuma nota criada nesse dia.
+            </div>
+            """, unsafe_allow_html=True)
+
+    # Reindexar
+    st.markdown("<div style='margin-top:12px;'></div>", unsafe_allow_html=True)
+    st.markdown('<div class="section-label">Índice</div>', unsafe_allow_html=True)
+    if st.button("🔄 Reindexar notas", use_container_width=True):
+        with st.spinner("Reindexando..."):
+            reindexar_notas()
+        st.success("Notas reindexadas com sucesso!")
+        st.rerun()
