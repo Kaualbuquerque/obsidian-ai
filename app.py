@@ -54,6 +54,7 @@ st.markdown("""
     [data-testid="stDecoration"] { visibility: hidden; }
     [data-testid="stStatusWidget"] { visibility: hidden; }
 
+    /* Header */
     [data-testid="stHeader"] {
     background-color: var(--bg);
     border-bottom: 1px solid var(--border);
@@ -63,6 +64,7 @@ st.markdown("""
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
 
+    /* Sidebar */
     section[data-testid="stSidebar"] {
         background-color: var(--sidebar);
         border-right: 1px solid var(--border);
@@ -96,6 +98,7 @@ st.markdown("""
         margin: 14px 0 8px;
     }
 
+    /* stats */
     .stat-card {
         background: var(--card);
         border: 1px solid var(--border);
@@ -117,6 +120,7 @@ st.markdown("""
         color: var(--primary-glow);
     }
 
+    /* Tag */
     .tag-item {
         display: flex;
         justify-content: space-between;
@@ -138,7 +142,8 @@ st.markdown("""
         border-radius: 20px;
         padding: 1px 8px;
     }
-
+    
+    /* Calendário */
     .cal-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
@@ -189,6 +194,7 @@ st.markdown("""
         color: transparent;
     }
     
+    /* Card */
     .nota-card {
         background: var(--card);
         border: 1px solid var(--border);
@@ -211,6 +217,114 @@ st.markdown("""
         overflow-y: auto;
         padding-right: 4px;
         margin-top: 6px;
+    }
+    
+    /* Chat */
+    .chat-header {
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 14px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .chat-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text);
+    }
+    .chat-subtitle {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px;
+    }
+    
+    /* Remetente */
+    .msg-user {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 16px;
+    }
+    .msg-ia {
+        display: flex;
+        justify-content: flex-start;
+        margin-bottom: 16px;
+    }
+    
+    /* Balão de mensagem */
+    .bubble-user {
+        background: var(--primary);
+        color: white;
+        padding: 10px 16px;
+        border-radius: 18px 18px 4px 18px;
+        max-width: 70%;
+        font-size: 14px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+    .bubble-ia {
+        background: var(--card);
+        color: var(--text);
+        padding: 12px 16px;
+        border: 1px solid var(--border);
+        border-radius: 18px 18px 18px 4px;
+        max-width: 75%;
+        font-size: 14px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+    .sender-label {
+        font-size: 11px;
+        color: var(--muted);
+        margin-bottom: 4px;
+    }
+    
+    /* Hero */
+    .welcome-container {
+        text-align: center;
+        padding: 4rem 0;
+    }
+    .welcome-icon {
+        font-size: 52px;
+        margin-bottom: 1rem;
+    }
+    .welcome-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+    .welcome-title span {
+        color: var(--primary-glow);
+    }
+    .welcome-subtitle {
+        font-size: 14px;
+        color: var(--muted);
+        margin-bottom: 2rem;
+    }
+    
+    /* Sugestão de pergunta */
+    .suggestion-grid {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .suggestion-chip {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 8px 16px;
+        font-size: 13px;
+        color: var(--muted);
+        cursor: pointer;
+        transition: border-color 0.15s;
+    }
+    .suggestion-chip:hover {
+        border-color: var(--primary);
+        color: var(--text);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -560,9 +674,93 @@ with st.sidebar:
 
     # Reindexar
     st.markdown("<div style='margin-top:12px;'></div>", unsafe_allow_html=True)
-    st.markdown('<div class="section-label">Índice</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-label">Índice</div>',
+                unsafe_allow_html=True)
     if st.button("🔄 Reindexar notas", use_container_width=True):
         with st.spinner("Reindexando..."):
             reindexar_notas()
         st.success("Notas reindexadas com sucesso!")
+        st.rerun()
+
+# ── Chat
+col_header1, col_header2 = st.columns([6, 1])
+with col_header1:
+    st.markdown("""
+    <div class="chat-header">
+        <div>
+            <div class="chat-title">Conversa</div>
+            <div class="chat-subtitle">A IA busca respostas nas suas notas.</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col_header2:
+    if st.button("Limpar", key="limpar_chat"):
+        st.session_state["historico"] = []
+        if chat_engine:
+            chat_engine.reset()
+        st.rerun()
+
+# Tela de boas vindas ou histórico
+if colecao is None:
+    st.markdown("""
+    <div class="welcome-container">
+        <div class="welcome-icon">🟣</div>
+        <div class="welcome-title">Nenhum índice encontrado</div>
+        <div class="welcome-subtitle">
+            Clique em "Reindexar notas" no sidebar para começar.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+elif not st.session_state["historico"]:
+    st.markdown("""
+    <div class="welcome-container">
+        <div class="welcome-icon">🟣</div>          
+        <div class="welcome-title">
+            Olá! Eu sou o <span>Obsidius.</span>
+        </div>
+        <div class="welcome-subtitle">
+            Pergunter sobre suas notas ou peça sugestões.
+        </div>
+        <div class="suggestion-grid">
+            <div class="suggestion-chip">📄 Liste minhas notas mais recentes</div>
+            <div class="suggestion-chip">🔍 O que tenho sobre produtividade?</div>
+            <div class="suggestion-chip">💡 Quais são minhas ideias principais?</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+else:
+        for msg in st.session_state["historico"]:
+            if msg["role"] == "user":
+                st.markdown(f"""
+                <div class="msg-user">
+                    <div>
+                        <div class="sender-label" style="text-align:right;">Você</div>
+                        <div class="bubble-user">{msg["content"]}</div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                <div class="msg-ia">
+                    <div>
+                        <div class="sender-label">Obsidius</div>
+                        <div class="bubble-ia">{msg["content"]}</div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+# Input do chat
+if colecao is not None:
+    pergunta = st.chat_input("Pergunte algo sobre suas notas...")
+    if pergunta and chat_engine:
+        st.session_state["historico"].append({"role": "user", "content":pergunta})
+        with st.spinner("Buscando nas suas notas..."):
+            resposta = chat_engine.chat(pergunta)
+        st.session_state["historico"].append({
+            "role": "assistant",
+            "content": str(resposta)
+        })
         st.rerun()
