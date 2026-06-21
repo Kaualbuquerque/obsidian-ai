@@ -1,10 +1,10 @@
 from llama_index.core import VectorStoreIndex
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core.storage.storage_context import StorageContext
-from config import configurar_settings, COLLECTION_NAME, DATA_DIR
+from config import configure_settings, COLLECTION_NAME, DATA_DIR
 import chromadb
 
-configurar_settings()
+configure_settings()
 
 # ── Carregar índice existente do ChromaDB
 chroma_client = chromadb.PersistentClient(path=DATA_DIR)
@@ -13,7 +13,7 @@ try:
     chroma_collection = chroma_client.get_collection(COLLECTION_NAME)
 except Exception:
     print("Nenhum índice encontrado.")
-    print("Rode primeiro: python indexar.py")
+    print("Rode primeiro: python indexer.py")
     exit()
 
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)

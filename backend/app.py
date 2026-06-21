@@ -9,7 +9,7 @@ from llama_index.core import VectorStoreIndex
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core.storage.storage_context import StorageContext
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
-from config import configurar_settings, obter_vector_store, COLLECTION_NAME, DATA_DIR, NOTAS_DIR
+from config import configure_settings, get_vector_store, COLLECTION_NAME, DATA_DIR, NOTES_DIR
 import chromadb
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -331,89 +331,89 @@ st.markdown("""
 
 
 #  ── Funções auxiliares
-def ler_fontmatter(caminho):
+def read_frontmatter(path):
     try:
-        texto = Path(caminho).read_text(encoding="utf-8")
-        if texto.startswith("---"):
-            fim = texto.find("---", 3)
-            if fim != -1:
-                return yaml.safe_load(texto[3:fim]) or {}
+        text = Path(path).read_text(encoding="utf-8")
+        if text.startswith("---"):
+            end = text.find("---", 3)
+            if end != -1:
+                return yaml.safe_load(text[3:end]) or {}
     except Exception:
         pass
     return {}
 
 
-def analisar_notas():
-    notas_dir = Path(NOTAS_DIR)
-    arquivos = list(notas_dir.glob("**/*.md"))
+def analyze_notes():
+    notes_dir = Path(NOTES_DIR)
+    files = list(notes_dir.glob("**/*.md"))
 
-    total = len(arquivos)
-    tags_contagem = {}
-    datas_criacao = {}
-    compromissos = {}
-    links_recebidos = {a.stem: 0 for a in arquivos}
+    total = len(files)
+    tags_count = {}
+    creation_dates = {}
+    events = {}
+    received_links = {f.stem: 0 for f in files}
 
-    for arq in arquivos:
-        fm = ler_fontmatter(arq)
+    for file in files:
+        fm = read_frontmatter(file)
 
         tags = fm.get("tags", [])
         if isinstance(tags, str):
             tags = [tags]
         for tag in tags:
-            tags_contagem[tag] = tags_contagem.get(tag, 0) + 1
+            tags_count[tag] = tags_count.get(tag, 0) + 1
 
-        stat = arq.stat()
-        data_criacao = date.fromtimestamp(stat.st_ctime)
-        datas_criacao[arq.stem] = data_criacao
+        stat = file.stat()
+        creation_date = date.fromtimestamp(stat.st_ctime)
+        creation_dates[file.stem] = creation_date
 
         if fm.get("compromisso"):
-            compromissos[data_criacao] = fm.get("compromisso")
+            events[creation_date] = fm.get("compromisso")
 
-        texto = arq.read_text(encoding="utf-8", errors="ignore")
-        links = re.findall(r'\[\[([^\]]+)\]\]', texto)
+        text = file.read_text(encoding="utf-8", errors="ignore")
+        links = re.findall(r'\[\[([^\]]+)\]\]', text)
         for link in links:
-            link_limpo = link.split("|")[0].strip()
-            if link_limpo in links_recebidos:
-                links_recebidos[link_limpo] += 1
+            clean_link = link.split("|")[0].strip()
+            if clean_link in received_links:
+                received_links[clean_link] += 1
 
-    orfas = sum(1 for v in links_recebidos.values() if v == 0)
+    orphans = sum(1 for v in received_links.values() if v == 0)
 
     return {
         "total": total,
-        "tags": dict(sorted(tags_contagem.items(), key=lambda x: x[1], reverse=True)),
-        "datas_criacao": datas_criacao,
-        "compromissos": compromissos,
-        "orfas": orfas
+        "tags": dict(sorted(tags_count.items(), key=lambda x: x[1], reverse=True)),
+        "creation_dates": creation_dates,
+        "events": events,
+        "orphans": orphans
     }
 
 
-def gerar_calendario(ano, mes, datas_com_notas, compromissos, dia_selecionado=None):
-    hoje = date.today()
-    cal = calendar.monthcalendar(ano, mes)
-    dias_semana = ["S", "T", "Q", "Q", "S", "S", "D"]
+def generate_calendar(year, month, dates_with_notes, events, selected_day=None):
+    today = date.today()
+    cal = calendar.monthcalendar(year, month)
+    weekdays = ["S", "T", "Q", "Q", "S", "S", "D"]
 
     html = ""
     html += '<div class="cal-grid">'
 
-    for d in dias_semana:
+    for d in weekdays:
         html += f'<div class="cal-day-name">{d}</div>'
 
-    for semana in cal:
-        for dia in semana:
-            if dia == 0:
+    for week in cal:
+        for day in week:
+            if day == 0:
                 html += '<div class="cal-day empty">·</div>'
             else:
-                data_atual = date(ano, mes, dia)
+                current_date = date(year, month, day)
                 classes = ["cal-day"]
-                if data_atual in datas_com_notas:
+                if current_date in dates_with_notes:
                     classes.append("has-notes")
-                if data_atual in compromissos:
+                if current_date in events:
                     classes.append("has-compromisso")
-                if data_atual == hoje:
+                if current_date == today:
                     classes.append("today")
-                if dia_selecionado and data_atual == dia_selecionado:
+                if selected_day and current_date == selected_day:
                     classes.append("selected")
-                html += f'<div class="{" ".join(classes)}">{dia}</div>'
+                html += f'<div class="{" ".join(classes)}">{day}</div>'
 
     html += '</div>'
     return html
@@ -421,10 +421,10 @@ def gerar_calendario(ano, mes, datas_com_notas, compromissos, dia_selecionado=No
 
 #  ── Carregamento da IA e session state
 @st.cache_resource
-def carregar_engine():
-    configurar_settings()
+def load_engine():
+    configure_settings()
     try:
-        chroma_client, chroma_collection, vector_store, storage_context = obter_vector_store()
+        chroma_client, chroma_collection, vector_store, storage_context = get_vector_store()
         chroma_client.get_collection(COLLECTION_NAME)
     except Exception:
         return None, None
@@ -453,48 +453,48 @@ Diretrizes obrigatórias:
     return chroma_collection, chat_engine
 
 
-if "historico" not in st.session_state:
-    st.session_state["historico"] = []
+if "history" not in st.session_state:
+    st.session_state["history"] = []
 
-if "mes_atual" not in st.session_state:
-    st.session_state["mes_atual"] = date.today().month
+if "current_month" not in st.session_state:
+    st.session_state["current_month"] = date.today().month
 
-if "ano_atual" not in st.session_state:
-    st.session_state["ano_atual"] = date.today().year
+if "current_year" not in st.session_state:
+    st.session_state["current_year"] = date.today().year
 
-if "dia_selecionado" not in st.session_state:
-    st.session_state["dia_selecionado"] = None
+if "selected_day" not in st.session_state:
+    st.session_state["selected_day"] = None
 
-if "reindexar" not in st.session_state:
-    st.session_state["reindexar"] = False
+if "reindex" not in st.session_state:
+    st.session_state["reindex"] = False
 
 
 #  ── Watchdog
-class MonitorNotas(FileSystemEventHandler):
+class NotesMonitor(FileSystemEventHandler):
     def on_any_event(self, event):
         if event.src_path.endswith(".md"):
-            st.session_state["reindexar"] = True
+            st.session_state["reindex"] = True
 
 
-def iniciar_watchdog():
-    if "watchdog_ativo" not in st.session_state:
-        handler = MonitorNotas()
+def start_watchdog():
+    if "watchdog_active" not in st.session_state:
+        handler = NotesMonitor()
         observer = Observer()
-        observer.schedule(handler, path=NOTAS_DIR, recursive=True)
+        observer.schedule(handler, path=NOTES_DIR, recursive=True)
         observer.start()
-        st.session_state["watchdog_ativo"] = True
+        st.session_state["watchdog_active"] = True
 
 
 # TODO: Fase Electron — migrar para sistema de eventos independente
-def reindexar_notas():
-    configurar_settings()
+def reindex_notes():
+    configure_settings()
     chroma_client = chromadb.PersistentClient(path=DATA_DIR)
     try:
         chroma_client.delete_collection(COLLECTION_NAME)
     except Exception:
         pass
-    _, _, vector_store, storage_context = obter_vector_store()
-    documents = SimpleDirectoryReader(NOTAS_DIR).load_data()
+    _, _, vector_store, storage_context = get_vector_store()
+    documents = SimpleDirectoryReader(NOTES_DIR).load_data()
     VectorStoreIndex.from_documents(
         documents,
         storage_context=storage_context
@@ -503,16 +503,16 @@ def reindexar_notas():
 
 
 # ── Inicialização
-iniciar_watchdog()
+start_watchdog()
 
-if st.session_state["reindexar"]:
+if st.session_state["reindex"]:
     with st.spinner("Novas notas detectadas, reindexando..."):
-        reindexar_notas()
-    st.session_state["reindexar"] = False
+        reindex_notes()
+    st.session_state["reindex"] = False
     st.rerun()
 
-dados = analisar_notas()
-colecao, chat_engine = carregar_engine()
+data = analyze_notes()
+collection, chat_engine = load_engine()
 
 
 # ── Sidebar
@@ -533,26 +533,26 @@ with st.sidebar:
         st.markdown(f"""
         <div class="stat-card">
             <div class="stat-label">Notas</div>
-            <div class="stat-value">{dados['total']}</div>
+            <div class="stat-value">{data['total']}</div>
         </div>
         """, unsafe_allow_html=True)
     with col2:
         st.markdown(f"""
         <div class="stat-card">
             <div class="stat-label">Órfãs</div>
-            <div class="stat-value">{dados['orfas']}</div>
+            <div class="stat-value">{data['orphans']}</div>
         </div>
         """, unsafe_allow_html=True)
 
     # Tags
     st.markdown('<div class="section-label">Tags</div>',
                 unsafe_allow_html=True)
-    if dados["tags"]:
-        for tag, qtd in list(dados["tags"].items())[:8]:
+    if data["tags"]:
+        for tag, count in list(data["tags"].items())[:8]:
             st.markdown(f"""
                         <div class="tag-item">
                             <span class="tag-name">#{tag}<span>
-                            <span class="tag-count">#{qtd}<span>
+                            <span class="tag-count">#{count}<span>
                         </div>
                         """, unsafe_allow_html=True)
     else:
@@ -568,15 +568,15 @@ with st.sidebar:
 
     nav1, nav2, nav3 = st.columns([1, 3, 1])
     with nav1:
-        if st.button("‹", key="mes_ant"):
-            if st.session_state["mes_atual"] == 1:
-                st.session_state["mes_atual"] = 12
-                st.session_state["ano_atual"] -= 1
+        if st.button("‹", key="prev_month"):
+            if st.session_state["current_month"] == 1:
+                st.session_state["current_month"] = 12
+                st.session_state["current_year"] -= 1
             else:
-                st.session_state["mes_atual"] -= 1
+                st.session_state["current_month"] -= 1
 
     with nav2:
-        nomes_mes = {
+        month_names = {
             1: "Janeiro", 2: "Fevereiro", 3: "Março",    4: "Abril",
             5: "Maio",    6: "Junho",     7: "Julho",     8: "Agosto",
             9: "Setembro", 10: "Outubro",  11: "Novembro", 12: "Dezembro"
@@ -585,83 +585,83 @@ with st.sidebar:
         st.markdown(f"""
                     <div style='text-align:center; font-size:12px; font-weight:600;
                                 color:var(--primary-glow); padding-top:6px;'>
-                        {nomes_mes[st.session_state['mes_atual']]} {st.session_state['ano_atual']}
+                        {month_names[st.session_state['current_month']]} {st.session_state['current_year']}
                     </div>
                     """, unsafe_allow_html=True)
 
     with nav3:
-        if st.button("›", key="mes_prox"):
-            if st.session_state["mes_atual"] == 12:
-                st.session_state["mes_atual"] = 1
-                st.session_state["ano_atual"] += 1
+        if st.button("›", key="next_month"):
+            if st.session_state["current_month"] == 12:
+                st.session_state["current_month"] = 1
+                st.session_state["current_year"] += 1
             else:
-                st.session_state["mes_atual"] += 1
+                st.session_state["current_month"] += 1
 
-    datas_com_notas = set(dados["datas_criacao"].values())
+    dates_with_notes = set(data["creation_dates"].values())
 
-    cal_html = gerar_calendario(
-        st.session_state["ano_atual"],
-        st.session_state["mes_atual"],
-        datas_com_notas,
-        dados["compromissos"],
-        st.session_state["dia_selecionado"],
+    calendar_html = generate_calendar(
+        st.session_state["current_year"],
+        st.session_state["current_month"],
+        dates_with_notes,
+        data["events"],
+        st.session_state["selected_day"],
     )
 
-    st.markdown(cal_html, unsafe_allow_html=True)
+    st.markdown(calendar_html, unsafe_allow_html=True)
 
     # Filtro por dia
     st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
-    mes_atual = st.session_state["mes_atual"]
-    ano_atual = st.session_state["ano_atual"]
-    _, total_dias = calendar.monthrange(ano_atual, mes_atual)
+    current_month = st.session_state["current_month"]
+    current_year = st.session_state["current_year"]
+    _, total_days = calendar.monthrange(current_year, current_month)
 
-    opcoes = ["Selecione um dia"] + [str(d) for d in range(1, total_dias + 1)]
-    dia_escolhido = st.selectbox(
+    options = ["Selecione um dia"] + [str(d) for d in range(1, total_days + 1)]
+    chosen_day = st.selectbox(
         "Filtrar por dia",
-        opcoes,
+        options,
         label_visibility="collapsed"
     )
 
-    if dia_escolhido != "Selecione um dia...":
+    if chosen_day != "Selecione um dia...":
         try:
-            st.session_state["dia_selecionado"] = date(
-                ano_atual,
-                mes_atual,
-                int(dia_escolhido)
+            st.session_state["selected_day"] = date(
+                current_year,
+                current_month,
+                int(chosen_day)
             )
         except Exception:
-            st.session_state["dia_selecionado"] = None
+            st.session_state["selected_day"] = None
     else:
-        st.session_state["dia_selecionado"] = None
+        st.session_state["selected_day"] = None
 
     # Notas do dia selecionado
-    if st.session_state["dia_selecionado"]:
-        dia_sel = st.session_state["dia_selecionado"]
-        notas_dia = [n for n, d in dados["datas_criacao"].items()
-                     if d == dia_sel]
+    if st.session_state["selected_day"]:
+        selected_date = st.session_state["selected_day"]
+        notes_of_day = [n for n, d in data["creation_dates"].items()
+                        if d == selected_date]
 
-        compromisso_dia = dados["compromissos"].get(dia_sel)
-        if compromisso_dia:
+        event_of_day = data["events"].get(selected_date)
+        if event_of_day:
             st.markdown(f"""
             <div style='font-size:12px; color:#f59e0b; margin-top:6px;'>
-                🗓 {compromisso_dia}
+                🗓 {event_of_day}
             </div>
             """, unsafe_allow_html=True)
 
-        if notas_dia:
+        if notes_of_day:
             st.markdown(f"""
             <div style='font-size:11px; color:var(--muted); margin-top:8px;'>
-                {len(notas_dia)} nota(s) em {dia_sel.strftime('%d/%m/%Y')}
+                {len(notes_of_day)} nota(s) em {selected_date.strftime('%d/%m/%Y')}
             </div>
             """, unsafe_allow_html=True)
 
-            cards_html = '<div class="notas-scroll">'
-            for nota in notas_dia:
-                data_formatada = dia_sel.strftime('%d/%m/%Y')
-                cards_html += f'<div class="nota-card">'
-                cards_html += f'<div class="nota-card-titulo">📄 {nota}</div>'
-                cards_html += f'<div class="nota-card-data">{data_formatada}</div>'
+            cards_html = '<div class="notes-scroll">'
+            for note in notes_of_day:
+                formatted_date = selected_date.strftime('%d/%m/%Y')
+                cards_html += f'<div class="note-card">'
+                cards_html += f'<div class="note-card-title">📄 {note}</div>'
+                cards_html += f'<div class="note-card-date">{formatted_date}</div>'
                 cards_html += f'</div>'
             cards_html += '</div>'
             st.markdown(cards_html, unsafe_allow_html=True)
@@ -678,7 +678,7 @@ with st.sidebar:
                 unsafe_allow_html=True)
     if st.button("🔄 Reindexar notas", use_container_width=True):
         with st.spinner("Reindexando..."):
-            reindexar_notas()
+            reindex_notes()
         st.success("Notas reindexadas com sucesso!")
         st.rerun()
 
@@ -695,14 +695,14 @@ with col_header1:
     """, unsafe_allow_html=True)
 
 with col_header2:
-    if st.button("Limpar", key="limpar_chat"):
-        st.session_state["historico"] = []
+    if st.button("Limpar", key="clear_chat"):
+        st.session_state["history"] = []
         if chat_engine:
             chat_engine.reset()
         st.rerun()
 
 # Tela de boas vindas ou histórico
-if colecao is None:
+if collection is None:
     st.markdown("""
     <div class="welcome-container">
         <div class="welcome-icon">🟣</div>
@@ -713,7 +713,7 @@ if colecao is None:
     </div>
     """, unsafe_allow_html=True)
 
-elif not st.session_state["historico"]:
+elif not st.session_state["history"]:
     st.markdown("""
     <div class="welcome-container">
         <div class="welcome-icon">🟣</div>          
@@ -721,7 +721,7 @@ elif not st.session_state["historico"]:
             Olá! Eu sou o <span>Obsidius.</span>
         </div>
         <div class="welcome-subtitle">
-            Pergunter sobre suas notas ou peça sugestões.
+            Pergunte sobre suas notas ou peça sugestões.
         </div>
         <div class="suggestion-grid">
             <div class="suggestion-chip">📄 Liste minhas notas mais recentes</div>
@@ -732,9 +732,9 @@ elif not st.session_state["historico"]:
     """, unsafe_allow_html=True)
 
 else:
-        for msg in st.session_state["historico"]:
-            if msg["role"] == "user":
-                st.markdown(f"""
+    for msg in st.session_state["history"]:
+        if msg["role"] == "user":
+            st.markdown(f"""
                 <div class="msg-user">
                     <div>
                         <div class="sender-label" style="text-align:right;">Você</div>
@@ -742,25 +742,26 @@ else:
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                <div class="msg-ia">
+        else:
+            st.markdown(f"""
+                <div class="msg-ai">
                     <div>
                         <div class="sender-label">Obsidius</div>
-                        <div class="bubble-ia">{msg["content"]}</div>
+                        <div class="bubble-ai">{msg["content"]}</div>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
 
 # Input do chat
-if colecao is not None:
-    pergunta = st.chat_input("Pergunte algo sobre suas notas...")
-    if pergunta and chat_engine:
-        st.session_state["historico"].append({"role": "user", "content":pergunta})
+if collection is not None:
+    question = st.chat_input("Pergunte algo sobre suas notas...")
+    if question and chat_engine:
+        st.session_state["history"].append(
+            {"role": "user", "content": question})
         with st.spinner("Buscando nas suas notas..."):
-            resposta = chat_engine.chat(pergunta)
-        st.session_state["historico"].append({
+            answer = chat_engine.chat(question)
+        st.session_state["history"].append({
             "role": "assistant",
-            "content": str(resposta)
+            "content": str(answer)
         })
         st.rerun()

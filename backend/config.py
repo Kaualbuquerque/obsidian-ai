@@ -12,19 +12,21 @@ load_dotenv()
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-NOTAS_DIR = "./notas_teste"
+NOTES_DIR = "./test_notes"
 DATA_DIR = "./data"
 COLLECTION_NAME = "obsidian_notes"
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 LLM_MODEL = "llama-3.3-70b-versatile"
 
-def configurar_settings():
+
+def configure_settings():
     llm = Groq(model=LLM_MODEL, api_key=GROQ_API_KEY)
     embed_model = HuggingFaceEmbedding(model_name=EMBEDDING_MODEL)
     Settings.llm = llm
     Settings.embed_model = embed_model
 
-def obter_vector_store():
+
+def get_vector_store():
     chroma_client = chromadb.PersistentClient(path=DATA_DIR)
     chroma_collection = chroma_client.get_or_create_collection(COLLECTION_NAME)
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)

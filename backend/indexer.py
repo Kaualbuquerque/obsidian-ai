@@ -1,8 +1,8 @@
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
-from config import configurar_settings, obter_vector_store, NOTAS_DIR, COLLECTION_NAME, DATA_DIR
+from config import configure_settings, get_vector_store, NOTAS_DIR, COLLECTION_NAME, DATA_DIR
 import chromadb
 
-configurar_settings()
+configure_settings()
 
 print("Limpando índice anterior...")
 chroma_client = chromadb.PersistentClient(path=DATA_DIR)
@@ -13,7 +13,7 @@ try:
 except Exception:
     print("Nenhum índice anterior encontrado, criando do zero.")
 
-_, _, vector_store, storage_context = obter_vector_store()
+_, _, vector_store, storage_context = get_vector_store()
 
 print("\nLendo e indexando suas notas...")
 documents = SimpleDirectoryReader(NOTAS_DIR).load_data()
