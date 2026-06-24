@@ -1,13 +1,23 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from starlette.middleware.cors import CORSMiddleware
 
 from services.chat_service import ask, reset_chat_engine
 from services.notes_service import analyze_notes, reindex_notes
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 class ChatRequest(BaseModel):
     question: str
+
 
 @app.get("/")
 def root():
@@ -48,6 +58,7 @@ def get_notes_calendar():
 def post_chat(request: ChatRequest):
     answer = ask(request.question)
     return {"answer": answer}
+
 
 @app.post("/reindex")
 def post_reindex():
