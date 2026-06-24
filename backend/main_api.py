@@ -1,9 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from services.chat_service import ask
-from services.notes_service import analyze_notes
-
+from services.chat_service import ask, reset_chat_engine
+from services.notes_service import analyze_notes, reindex_notes
 
 app = FastAPI()
 
@@ -49,3 +48,12 @@ def get_notes_calendar():
 def post_chat(request: ChatRequest):
     answer = ask(request.question)
     return {"answer": answer}
+
+@app.post("/reindex")
+def post_reindex():
+    total = reindex_notes()
+    reset_chat_engine()
+    return {
+        "status": "Success",
+        "total_indexed": total,
+    }

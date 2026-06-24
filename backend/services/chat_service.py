@@ -51,3 +51,8 @@ def ask(question: str) -> str:
 
     response = engine.chat(question)
     return str(response)
+
+
+def reset_chat_engine():
+    global _chat_engine
+    _chat_engine = None

@@ -1,8 +1,12 @@
 import re
+import yaml
+import chromadb
 from datetime import date
 from pathlib import Path
-import yaml
-from config import NOTES_DIR
+
+from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
+
+from config import configure_settings, get_vector_store, NOTES_DIR, DATA_DIR, COLLECTION_NAME
 
 
 def read_fontmatter(path: Path) -> dict:
@@ -12,7 +16,8 @@ def read_fontmatter(path: Path) -> dict:
             end = text.find("---", 3)
             if end != -1:
                 return yaml.safe_load(text[3:end]) or {}
-    except Exception:
+    except Exception as e:
+        print(f"Erro ao buscar fontmatter: {e}")
         pass
     return {}
 
@@ -59,3 +64,24 @@ def analyze_notes() -> dict:
         "events": events,
         "orphans": orphans
     }
+
+
+def reindex_notes() -> int:
+    configure_settings()
+    chroma_client = chromadb.PersistentClient(path=DATA_DIR)
+
+    try:
+        chroma_client.delete_collection(COLLECTION_NAME)
+    except Exception as e:
+        print(f"Erro ao deletar collection: {e}")
+        pass
+
+    _, _, vector_store, storage_context = get_vector_store()
+    documents = SimpleDirectoryReader(NOTES_DIR).load_data()
+
+    VectorStoreIndex.from_documents(
+        documents,
+        storage_context=storage_context,
+    )
+
+    return len(documents)
