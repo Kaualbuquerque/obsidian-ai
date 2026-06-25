@@ -3,3 +3,8 @@ export interface NotesStats {
     orphans: number;
     tags: Record<string, number>;
 }
+
+export interface NotesCalendar {
+    dates: Record<string, string>;
+    events: Record<string, string>;
+}
