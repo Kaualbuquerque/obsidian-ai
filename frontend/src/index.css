@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+:root {
+    --color-background: oklch(0.985 0.005 85);
+    --color-foreground: oklch(0.18 0.01 60);
+    --color-surface: oklch(0.97 0.008 80);
+    --color-surface-2: oklch(0.945 0.012 78);
+    --color-border-hairline: oklch(0.18 0.01 60 / 8%);
+    --color-muted-foreground: oklch(0.45 0.012 60);
+    --color-accent: oklch(0.42 0.06 155);
+    --color-accent-foreground: oklch(0.985 0.005 85);
+    --color-accent-soft: oklch(0.42 0.06 155 / 8%);
+    --color-destructive: oklch(0.55 0.18 27);
+}
+
+.dark {
+    --color-background: oklch(0.16 0.005 80);
+    --color-foreground: oklch(0.94 0.008 85);
+    --color-surface: oklch(0.205 0.006 80);
+    --color-surface-2: oklch(0.24 0.008 80);
+    --color-border-hairline: oklch(0.94 0.008 85 / 10%);
+    --color-muted-foreground: oklch(0.7 0.02 80);
+    --color-accent: oklch(0.7 0.11 152);
+    --color-accent-foreground: oklch(0.16 0.005 80);
+    --color-accent-soft: oklch(0.7 0.11 152 / 12%);
+    --color-destructive: oklch(0.65 0.18 25);
+}
+
+@theme inline {
+    --color-background: var(--color-background);
+    --color-foreground: var(--color-foreground);
+    --color-surface: var(--color-surface);
+    --color-surface-2: var(--color-surface-2);
+    --color-border-hairline: var(--color-border-hairline);
+    --color-muted-foreground: var(--color-muted-foreground);
+    --color-accent: var(--color-accent);
+    --color-accent-foreground: var(--color-accent-foreground);
+    --color-accent-soft: var(--color-accent-soft);
+    --color-destructive: var(--color-destructive);
+
+    --font-serif: "Newsreader", serif;
+    --font-sans: "Instrument Sans", sans-serif;
+    --font-mono: "JetBrains Mono", monospace;
+}
