@@ -1,13 +1,9 @@
 import streamlit as st
-import os
 import re
 import calendar
 from datetime import date
 from pathlib import Path
 import yaml
-from llama_index.core import VectorStoreIndex
-from llama_index.vector_stores.chroma import ChromaVectorStore
-from llama_index.core.storage.storage_context import StorageContext
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
 from config import configure_settings, get_vector_store, COLLECTION_NAME, DATA_DIR, NOTES_DIR
 import chromadb

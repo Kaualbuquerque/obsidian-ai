@@ -9,15 +9,22 @@ from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
 from config import configure_settings, get_vector_store, NOTES_DIR, DATA_DIR, COLLECTION_NAME
 
 
-def read_fontmatter(path: Path) -> dict:
+def read_frontmatter(path: Path) -> dict:
     try:
         text = Path(path).read_text(encoding="utf-8")
-        if text.startswith("---"):
-            end = text.find("---", 3)
-            if end != -1:
-                return yaml.safe_load(text[3:end]) or {}
-    except Exception as e:
-        print(f"Erro ao buscar fontmatter: {e}")
+        start = text.find("---")
+        if start == -1:
+            return {}
+        end = text.find("---", start + 3)
+        if end == -1:
+            return {}
+        raw = text[start + 3:end]
+        normalized = re.sub(r':(?=\S)', ': ', raw)
+        result = yaml.safe_load(normalized)
+        if not isinstance(result, dict):
+            return {}
+        return result
+    except Exception:
         pass
     return {}
 
@@ -33,7 +40,7 @@ def analyze_notes() -> dict:
     received_links = {f.stem: 0 for f in files}
 
     for file in files:
-        fm = read_fontmatter(file)
+        fm = read_frontmatter(file)
 
         tags = fm.get("tags", [])
         if isinstance(tags, str):
