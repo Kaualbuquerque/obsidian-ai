@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import type { NotesCalendar, NotesStats } from "../types/notes";
+import type { NotesCalendar, NotesStats, SideBarProps } from "../types/notes";
 import { buildCalendarGrid, MONTH_NAMES, WEEKDAY_LABELS } from "../utils/calendarUtils";
 import { RefreshCw } from "lucide-react";
 
-export default function Sidebar() {
+export default function Sidebar({ onNoteSelect }: SideBarProps) {
     const [stats, setStats] = useState<NotesStats | null>(null);
     const [calendar, setCalendar] = useState<NotesCalendar | null>(null);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -167,13 +167,20 @@ export default function Sidebar() {
                 </div>
             </div>
 
+            <button
+                onClick={() => onNoteSelect('Teste de nota')}
+                className="w-full py-2 text-[13px] text-foreground/40 border border-border-hairline rounded-xl"
+            >
+                Testar editor
+            </button>
+
             <div className="mt-auto pt-6">
                 <button
                     onClick={handleReindex}
                     disabled={isReindexing}
                     className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border-hairline text-[13px] text-foreground/80 hover:border-accent/40 hover:text-foreground transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                    <span className={`text-[15px] transition-transform duration-700 ${isReindexing ? 'animate-spin' : ''}`}><RefreshCw size={16}/></span>
+                    <span className={`text-[15px] transition-transform duration-700 ${isReindexing ? 'animate-spin' : ''}`}><RefreshCw size={16} /></span>
                     <span className="relative">
                         {isReindexing ? 'Reindexando' : 'Reindexar Cofre'}
                         {isReindexing && (

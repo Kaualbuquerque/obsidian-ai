@@ -8,3 +8,7 @@ export interface NotesCalendar {
     dates: Record<string, string>;
     events: Record<string, string>;
 }
+
+export interface SideBarProps {
+    onNoteSelect: (title: string) => void;
+}

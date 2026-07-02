@@ -12,6 +12,7 @@ export interface ParsedResponse {
 export interface ChatProps {
     isDark: boolean;
     toggleTheme: () => void;
+    onNoteSelect: (title: string) => void;
 }
 
 export interface UserMessageProps {
