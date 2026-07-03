@@ -121,9 +121,16 @@ def list_notes() -> list[dict]:
     notes = []
     for file in files:
         stat = file.stat()
+        fm = read_frontmatter(file)
+
+        tags = fm.get("tags", [])
+        if isinstance(tags, str):
+            tags = [tags]
+
         notes.append({
             "title": file.stem,
             "created_at": date.fromtimestamp(stat.st_ctime).isoformat(),
+            "tags": tags,
         })
 
     notes.sort(key=lambda x: x["created_at"], reverse=True)

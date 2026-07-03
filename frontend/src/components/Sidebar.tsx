@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { NotesCalendar, NotesStats, SideBarProps } from "../types/notes";
+import { type Note, type NotesCalendar, type NotesStats, type SideBarProps } from "../types/notes";
 import { buildCalendarGrid, MONTH_NAMES, WEEKDAY_LABELS } from "../utils/calendarUtils";
 import { RefreshCw } from "lucide-react";
 
@@ -7,6 +7,8 @@ export default function Sidebar({ onNoteSelect }: SideBarProps) {
     const [stats, setStats] = useState<NotesStats | null>(null);
     const [calendar, setCalendar] = useState<NotesCalendar | null>(null);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const [selectedTag, setSelectedTag] = useState<string | null>(null);
+    const [notes, setNotes] = useState<Note[]>([])
     const [isReindexing, setIsReindexing] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -15,11 +17,15 @@ export default function Sidebar({ onNoteSelect }: SideBarProps) {
     useEffect(() => {
         fetch('http://localhost:8000/notes/stats')
             .then((response) => response.json())
-            .then((data: NotesStats) => setStats(data))
+            .then((data: NotesStats) => setStats(data));
 
         fetch('http://localhost:8000/notes/calendar')
             .then((response) => response.json())
-            .then((data: NotesCalendar) => setCalendar(data))
+            .then((data: NotesCalendar) => setCalendar(data));
+
+        fetch('http://localhost:8000/notes')
+            .then((r) => r.json())
+            .then((data: Note[]) => setNotes(data));
     }, [])
 
     function getDayTextColor(d: { isSelected: boolean; isToday: boolean; hasNotes: boolean; hasEvent: boolean }) {
@@ -159,7 +165,13 @@ export default function Sidebar({ onNoteSelect }: SideBarProps) {
                 <div className="flex flex-wrap gap-2">
                     {Object.entries(stats.tags).map(([tag, count]) => (
                         <button
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border-hairline text-[13px] text-foreground/80 hover:border-accent/40 transition-colors">
+                            key={tag}
+                            onClick={() => setSelectedTag((prev) => (prev === tag ? null : tag))}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[13px] transition-colors
+                            ${selectedTag === tag
+                                    ? 'border-accent text-accent bg-accent-soft'
+                                    : 'border-border-hairline text-foreground/80 hover:border-accent/40'
+                                }`}>
                             #{tag}
                             <span className="text-foreground/40">{count}</span>
                         </button>
@@ -167,12 +179,39 @@ export default function Sidebar({ onNoteSelect }: SideBarProps) {
                 </div>
             </div>
 
-            <button
-                onClick={() => onNoteSelect('Teste de nota')}
-                className="w-full py-2 text-[13px] text-foreground/40 border border-border-hairline rounded-xl"
-            >
-                Testar editor
-            </button>
+            {(selectedDate || selectedTag) && (
+                <div className="mt-6">
+                    <p className="text-[10px] uppercase tracking-[0.12em] text-foreground/50 mb-3">
+                        {selectedTag
+                            ? `Notas com #${selectedTag}`
+                            : `Notas de ${selectedDate}`}
+                    </p>
+                    <div className="flex flex-col gap-2">
+                        {notes.filter((note) => {
+                            if (selectedTag) return note.tags.includes(selectedTag);
+                            if (selectedDate) return note.created_at === selectedDate;
+                            return false;
+                        }).map((note) => (
+                            <button
+                                key={note.title}
+                                onClick={() => onNoteSelect(note.title)}
+                                className="w-full text-left px-3 py-2.5 rounded-xl border border-border-hairline hover:border-accent/40 transition-colors"
+                            >
+                                <p className="text-[13px] text-foreground/80 truncate">{note.title}</p>
+                                <p className="text-[11px] text-foreground/40 mt-0.5">{note.created_at}</p>
+                            </button>
+                        ))}
+                        {notes.filter((note) => {
+                            if (selectedDate) return note.created_at === selectedDate;
+                            return false;
+                        }).length === 0 && selectedDate && !selectedTag && (
+                                <p className="text-[12px] text-foreground/40">
+                                    Nenhuma nota criada nesse dia.
+                                </p>
+                            )}
+                    </div>
+                </div>
+            )}
 
             <div className="mt-auto pt-6">
                 <button

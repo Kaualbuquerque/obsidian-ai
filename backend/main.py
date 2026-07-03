@@ -83,7 +83,7 @@ def post_notes(request: NoteCreateRequest):
     return create_note(request.title, request.content)
 
 @app.put("/notes/{title}")
-def put_note(title: str, request: NoteUpdateRequest):
+def put_note(title: str, request: NoteUpdateRequest ):
     result = update_note(title, request.content)
     if result is None:
         raise HTTPException(status_code=404, detail="Nota não encontrada")

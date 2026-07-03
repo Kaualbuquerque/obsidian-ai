@@ -11,12 +11,7 @@ export default function Home() {
         <div className="flex h-screen overflow-hidden bg-background">
             <Sidebar onNoteSelect={setSelectedNote} />
             <Chat isDark={isDark} toggleTheme={toggleTheme} onNoteSelect={setSelectedNote} />
-            {selectedNote && (
-                <div className="w-105 border-l border-border-hairline">
-                    {/* NoteEditor vem aqui */}
-                    <p className="p-6 text-foreground/40 text-sm">{selectedNote}</p>
-                </div>
-            )}
+            
         </div>
     )
 }
