@@ -1,3 +1,13 @@
+---
+tags: [AWS]
+compromisso: 
+date: 
+---
+
+# AWS - Infraestrutura
+
+# AWS - Infraestrutura
+
 ### **MOC: Infraestrutura AWS**
 
 A base para entender a nuvem da AWS está em como os recursos são distribuídos e entregues globalmente com alta disponibilidade, tolerância a falhas e baixa latência.

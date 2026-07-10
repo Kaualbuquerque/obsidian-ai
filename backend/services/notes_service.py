@@ -24,7 +24,7 @@ def read_frontmatter(path: Path) -> dict:
         result = yaml.safe_load(normalized)
         if not isinstance(result, dict):
             return {}
-        return result
+        return {k.lower(): v for k, v in result.items()}
     except Exception:
         pass
     return {}
@@ -37,9 +37,9 @@ def format_date(d: date) -> str:
 def note_template(title: str = "Nova nota") -> str:
     today = format_date(date.today())
     return f"""---
-    tags: []
-    compromisso: 
-    date: {today}
+    Tags: []
+    Compromisso: 
+    Date: {today}
     ---
     
     # {title}
@@ -99,7 +99,7 @@ def reindex_notes() -> int:
     try:
         chroma_client.delete_collection(COLLECTION_NAME)
     except Exception as e:
-        print(f"Erro ao deletar collection: {e}")
+        print(f"error deleting collection: {e}")
         pass
 
     _, _, vector_store, storage_context = get_vector_store()
@@ -149,14 +149,14 @@ def get_note(title: str) -> dict | None:
     body = content
 
     start = content.find("---")
-    if start == -1:
+    if start != -1:
         end = content.find("---", start + 3)
         if end != -1:
             raw = content[start + 3:end]
-            normalize = re.sub(r':(?=\S)', ': ', raw)
-            result = yaml.safe_load(normalize)
+            normalized = re.sub(r':(?=\S)', ': ', raw)
+            result = yaml.safe_load(normalized)
             if isinstance(result, dict):
-                frontmatter = result
+                frontmatter = {k.lower(): v for k, v in result.items()}
             body = content[end + 3:].strip()
 
     return {
@@ -197,3 +197,23 @@ def delete_note(title: str) -> dict | None:
 
     file.unlink()
     return {"title": title, "status": "deleted"}
+
+
+def rename_note(old_title: str, new_title: str) -> dict | None:
+    notes_dir = Path(NOTES_DIR)
+    old_file = notes_dir / f"{old_title}.md"
+    new_file = notes_dir / f"{new_title}.md"
+
+    if not old_file.exists():
+        return None
+
+    if new_file.exists():
+        return {"error": "file already exists"}
+
+    content = old_file.read_text(encoding="utf-8")
+    update_content = re.sub(r'^#\s+.+', f'#{new_title}', content, count=1, flags=re.MULTILINE)
+
+    new_file.write_text(update_content, encoding="utf-8")
+    old_file.unlink()
+
+    return {"old_title": old_title, "new_title": new_title, "status": "renamed"}

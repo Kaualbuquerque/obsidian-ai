@@ -9,19 +9,28 @@ export interface NotesCalendar {
     events: Record<string, string>;
 }
 
-export interface SideBarProps {
-    onNoteSelect: (title: string) => void;
-}
-
 export interface Note {
     title: string;
     created_at: string;
     tags: string[];
 }
 
-export interface NoteDatail {
+export interface NoteFrontmatter {
+    tags?: string[];
+    compromisso?: string;
+    date?: string;
+}
+
+export interface NoteDetail {
     title: string;
     content: string;
-    frontmatter: Record<string, unknown>;
+    frontmatter: NoteFrontmatter;
     tags: string[];
+}
+
+export interface NoteEditorProps {
+    selectedNote: string;
+    onClose: () => void;
+    onSaved: () => void;
+    onDeleted: () => void;
 }

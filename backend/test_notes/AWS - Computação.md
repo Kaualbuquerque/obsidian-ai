@@ -1,3 +1,15 @@
+---
+tags: [AWS]
+compromisso: 
+date: 
+---
+
+# AWS - Computação
+
+# AWS - Computação
+
+# AWS - Computação
+
 ### **MOC: Computação AWS**
 
 A computação tradicional na AWS é baseada no fornecimento de poder de processamento sob demanda através de servidores virtuais flexíveis, que trabalham em conjunto com sistemas de balanceamento e alta disponibilidade.
@@ -31,6 +43,3 @@ Soluções que eliminam totalmente a necessidade de provisionar, gerenciar ou pa
     - **Famílias de Instâncias**: Otimizadas para diferentes cargas de trabalho (Ex: _General Purpose_ para servidores web gerais, _Compute Optimized_ para processamento pesado, _Memory Optimized_ para bancos de dados em memória).
         
     - **Modelos de Compra/Preço**: Estratégias de custo fundamentais (Ex: _On-Demand_ para flexibilidade total, _Reserved Instances_ / _Savings Plans_ para descontos de longo prazo com compromisso de uso, e _Spot Instances_ para usar capacidade ociosa da AWS com até 90% de desconto, ideal para tarefas tolerantes a falhas).
-        
-
-#AWS/Computação

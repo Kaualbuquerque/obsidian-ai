@@ -1,19 +1,20 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 
-from schemas import ChatRequest, NoteCreateRequest, NoteUpdateRequest
+from schemas import ChatRequest, NoteCreateRequest, NoteUpdateRequest, NoteRenameRequest
 from services.chat_service import ask, reset_chat_engine
-from services.notes_service import analyze_notes, reindex_notes, list_notes, get_note, create_note, update_note
+from services.notes_service import analyze_notes, reindex_notes, list_notes, get_note, create_note, update_note, \
+    delete_note, rename_note
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
     allow_headers=["*"],
 )
+
 
 @app.get("/")
 def root():
@@ -70,6 +71,7 @@ def post_reindex():
 def get_notes():
     return list_notes()
 
+
 @app.get("/notes/{title}")
 def get_note_by_title(title: str):
     note = get_note(title)
@@ -78,20 +80,35 @@ def get_note_by_title(title: str):
 
     return note
 
+
 @app.post("/notes")
 def post_notes(request: NoteCreateRequest):
     return create_note(request.title, request.content)
 
+
 @app.put("/notes/{title}")
-def put_note(title: str, request: NoteUpdateRequest ):
+def update_note_by_title(title: str, request: NoteUpdateRequest):
     result = update_note(title, request.content)
     if result is None:
         raise HTTPException(status_code=404, detail="Nota não encontrada")
     return result
 
+
 @app.delete("/notes/{title}")
-def delete_note(title: str):
+def delete_note_by_title(title: str):
     result = delete_note(title)
     if result is None:
         raise HTTPException(status_code=404, detail="Nota não encontrada")
+    return result
+
+
+@app.patch("/notes/{title}/rename")
+def rename_note_by_title(title: str, request: NoteRenameRequest):
+    result = rename_note(title, request.new_title)
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="Note not found")
+    if "error" in result:
+        raise HTTPException(status_code=409, detail=result["error"])
+
     return result

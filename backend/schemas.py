@@ -12,3 +12,6 @@ class NoteCreateRequest(BaseModel):
 
 class NoteUpdateRequest(BaseModel):
     content: str
+
+class NoteRenameRequest(BaseModel):
+    new_title: str
