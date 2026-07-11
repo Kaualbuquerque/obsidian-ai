@@ -9,7 +9,7 @@ export interface NotesCalendar {
     events: Record<string, string>;
 }
 
-export interface Note {
+export interface Notes {
     title: string;
     created_at: string;
     tags: string[];
@@ -33,4 +33,12 @@ export interface NoteEditorProps {
     onClose: () => void;
     onSaved: () => void;
     onDeleted: () => void;
+}
+
+export interface VaultData {
+    stats: NotesStats | null;
+    calendar: NotesCalendar | null;
+    notes: Notes[];
+    isLoading: boolean;
+    refresh: () => void;
 }

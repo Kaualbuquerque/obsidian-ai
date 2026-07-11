@@ -1,42 +1,15 @@
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
-import { type Note, type NotesCalendar, type NotesStats } from "../types/notes";
+import { forwardRef, useState } from "react";
 import { buildCalendarGrid, MONTH_NAMES, WEEKDAY_LABELS } from "../utils/calendarUtils";
 import { Plus, RefreshCw } from "lucide-react";
 import type { SideBarProps, SidebarHandle } from "../types/sidebar";
 
-const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ onNoteSelect, onNewNote }, ref) => {
-    const [stats, setStats] = useState<NotesStats | null>(null);
-    const [calendar, setCalendar] = useState<NotesCalendar | null>(null);
+const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ stats, calendar, notes, isLoading, onNoteSelect, onNewNote, onReindex }) => {
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
-    const [notes, setNotes] = useState<Note[]>([]);
     const [isReindexing, setIsReindexing] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
-    function fetchData() {
-        fetch('http://localhost:8000/notes/stats')
-            .then((r) => r.json())
-            .then((data: NotesStats) => setStats(data));
-
-        fetch('http://localhost:8000/notes/calendar')
-            .then((r) => r.json())
-            .then((data: NotesCalendar) => setCalendar(data));
-
-        fetch('http://localhost:8000/notes')
-            .then((r) => r.json())
-            .then((data: Note[]) => setNotes(data));
-    }
-
-    useImperativeHandle(ref, () => ({
-        refresh() {
-            fetchData();
-        }
-    }));
-
-    useEffect(() => {
-        fetchData();
-    }, []);
 
     function getDayTextColor(d: { isSelected: boolean; isToday: boolean; hasNotes: boolean; hasEvent: boolean }) {
         if (d.isSelected) return 'text-accent-foreground font-semibold';
@@ -71,25 +44,14 @@ const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ onNoteSelect, onNewNo
 
     function handleReindex() {
         setIsReindexing(true);
-        fetch('http://localhost:8000/reindex', { method: 'POST' })
-            .then(() => Promise.all([
-                fetch('http://localhost:8000/notes/stats').then((r) => r.json()),
-                fetch('http://localhost:8000/notes/calendar').then((r) => r.json()),
-                fetch('http://localhost:8000/notes').then((r) => r.json()),
-            ]))
-            .then(([newStats, newCalendar, newNotes]) => {
-                setStats(newStats);
-                setCalendar(newCalendar);
-                setNotes(newNotes);
-            })
-            .finally(() => setIsReindexing(false));
+        Promise.resolve(onReindex()).finally(() => setIsReindexing(false));
     }
 
     const datesWithNotes = calendar ? new Set(Object.values(calendar.dates)) : new Set<string>();
     const eventDates = calendar ? new Set(Object.keys(calendar.events)) : new Set<string>();
     const grid = buildCalendarGrid(currentYear, currentMonth, datesWithNotes, eventDates, selectedDate);
 
-    if (!stats || !calendar) {
+    if (isLoading) {
         return (
             <aside className="w-90 h-screen bg-surface/40 border-r border-border-hairline flex items-center justify-center">
                 <p className="text-[13px] text-foreground/40">Carregando...</p>
@@ -226,7 +188,7 @@ const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ onNoteSelect, onNewNo
             <div className="mt-auto pt-6">
                 <button
                     onClick={handleReindex}
-                    disabled={isReindexing}
+                    disabled={isReindexing || isLoading}
                     className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border-hairline text-[13px] text-foreground/80 hover:border-accent/40 hover:text-foreground transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                     <span className={`transition-transform duration-700 ${isReindexing ? 'animate-spin' : ''}`}>

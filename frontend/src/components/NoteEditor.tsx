@@ -102,8 +102,14 @@ export default function NoteEditor({ selectedNote, onClose, onSaved, onDeleted }
             });
         };
 
+        const reindexVault = (): Promise<void> =>
+            fetch('http://localhost:8000/reindex', { method: 'POST' })
+                .then(() => { })
+                .catch((err) => console.error('Erro ao reindexar:', err));
+
         saveContent()
             .then(() => renameIfNeeded())
+            .then(() => reindexVault())
             .then(() => onSaved())
             .finally(() => setIsSaving(false));
     }
