@@ -1,6 +1,9 @@
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 
+from config import NOTES_DIR
 from schemas import ChatRequest, NoteCreateRequest, NoteUpdateRequest, NoteRenameRequest
 from services.chat_service import ask, reset_chat_engine
 from services.notes_service import analyze_notes, reindex_notes, list_notes, get_note, create_note, update_note, \
@@ -112,3 +115,8 @@ def rename_note_by_title(title: str, request: NoteRenameRequest):
         raise HTTPException(status_code=409, detail=result["error"])
 
     return result
+
+
+@app.get("/vault/name")
+def get_vault_name():
+    return {"name": Path(NOTES_DIR).resolve().name}

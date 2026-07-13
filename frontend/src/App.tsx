@@ -4,6 +4,7 @@ import Sidebar from "./components/Sidebar";
 import { useTheme } from "./hooks/useTheme";
 import NoteEditor from "./components/NoteEditor";
 import { useVaultData } from "./hooks/useVaultData";
+import TitleBar from "./components/TitleBar";
 
 export default function Home() {
     const { isDark, toggleTheme } = useTheme();
@@ -25,34 +26,39 @@ export default function Home() {
     }
 
     return (
-        <div className="flex h-screen overflow-hidden bg-background">
-            <Sidebar
-                stats={stats}
-                calendar={calendar}
-                notes={notes}
-                isLoading={isLoading}
-                onNoteSelect={setSelectedNote}
-                onNewNote={() => setSelectedNote('__new__')}
-                onReindex={() => {
-                    fetch('http://localhost:8000/reindex', { method: 'POST' })
-                        .then(() => refresh());
-                }}
-            />
+        <div className="flex flex-col h-screen overflow-hidden bg-background">
 
-            <Chat
-                isDark={isDark}
-                toggleTheme={toggleTheme}
-                onNoteSelect={setSelectedNote}
-            />
+            <TitleBar />
 
-            {selectedNote && (
-                <NoteEditor
-                    selectedNote={selectedNote}
-                    onClose={() => setSelectedNote(null)}
-                    onSaved={handleSaved}
-                    onDeleted={handleDeleted}
+            <div className="flex flex-1 overflow-hidden">
+                <Sidebar
+                    stats={stats}
+                    calendar={calendar}
+                    notes={notes}
+                    isLoading={isLoading}
+                    onNoteSelect={setSelectedNote}
+                    onNewNote={() => setSelectedNote('__new__')}
+                    onReindex={() => {
+                        fetch('http://localhost:8000/reindex', { method: 'POST' })
+                            .then(() => refresh());
+                    }}
                 />
-            )}
+
+                <Chat
+                    isDark={isDark}
+                    toggleTheme={toggleTheme}
+                    onNoteSelect={setSelectedNote}
+                />
+
+                {selectedNote && (
+                    <NoteEditor
+                        selectedNote={selectedNote}
+                        onClose={() => setSelectedNote(null)}
+                        onSaved={handleSaved}
+                        onDeleted={handleDeleted}
+                    />
+                )}
+            </div>
         </div>
     )
 }

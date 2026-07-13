@@ -9,7 +9,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "electron:build": "tsc -p tsconfig.electron.json",
+    "electron:build": "tsc -p tsconfig.electron.json && tsc -p tsconfig.preload.json",
     "electron:dev": "concurrently \"npm run dev\" \"npm run electron:build && electron .\""
   },
   "dependencies": {

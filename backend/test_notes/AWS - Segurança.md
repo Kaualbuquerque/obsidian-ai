@@ -1,15 +1,17 @@
-### **MOC: Segurança AWS**
+---
+tags: []
+compromisso: 
+date: 
+---
+
+# AWS - Segurança
 
 A segurança na AWS opera sob o Modelo de Responsabilidade Compartilhada. Esta nota centraliza os mecanismos de governança de contas, gerenciamento de identidades e proteção de rede para blindar a infraestrutura.
-
-### 🆔 Governança e Controle de Acesso Global
 
 - **[[AWS IAM]]**: O pilar de Identity and Access Management. Controla de forma global a autenticação e autorização (quem pode acessar o quê) na conta através de Usuários, Grupos, Funções (Roles) e Políticas JSON baseadas no Princípio do Menor Privilégio.
     
 - **[[AWS Organizations]]**: Serviço de gerenciamento centralizado para governar múltiplas contas AWS. Permite consolidar o faturamento, criar contas programaticamente e aplicar restrições máximas de segurança através de SCPs (Service Control Policies) em Unidades Organizacionais (OUs).
     
-
-### 🛡️ Segurança de Rede e Perímetro
 
 A proteção dos recursos internos (como servidores virtuais e bancos de dados) dentro de uma VPC é feita através de duas camadas complementares de firewall:
 
