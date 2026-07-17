@@ -1,70 +1,99 @@
-import { Editor, defaultValueCtx, editorViewCtx, rootCtx } from '@milkdown/core'
-import { Milkdown, MilkdownProvider, useEditor } from '@milkdown/react'
-import { commonmark } from '@milkdown/preset-commonmark';
-import { listener, listenerCtx } from '@milkdown/plugin-listener';
-import { TextSelection } from '@milkdown/prose/state';
-import { markdownSyntaxPlugin } from '../lib/markdownSyntaxPlugin';
-import type { MarkdownEditorProps } from '../types/editor';
-import { automd } from '@milkdown/plugin-automd';
-
-function MarkdownEditorInternal({ value, onChange }: MarkdownEditorProps) {
-
-    const { get } = useEditor((root) => {
-        return Editor.make()
-            .config((ctx) => {
-                ctx.set(rootCtx, root);
-                ctx.set(defaultValueCtx, value);
-            })
-            .use(commonmark)
-            .use(automd)
-            .use(listener)
-            .use(markdownSyntaxPlugin)
-            .config((ctx) => {
-                ctx.get(listenerCtx).markdownUpdated((_, markdown, prev) => {
-                    if (markdown !== prev) {
-                        onChange(markdown);
-                    }
-                });
-            });
-    }, []);
-
-    function focusEnd(e: React.MouseEvent) {
-        const target = e.target as HTMLElement;
-        if (target.closest('.ProseMirror')) {
-            const proseMirror = target.closest('.ProseMirror') as HTMLElement;
-            const lastChild = proseMirror.lastElementChild;
-
-            if (lastChild) {
-                const lastRect = lastChild.getBoundingClientRect();
-                if (e.clientY < lastRect.bottom) return;
-            }
-        }
-
-        const editor = get();
-        if (!editor) return;
-
-        editor.action((ctx) => {
-            const view = ctx.get(editorViewCtx);
-            const endPos = view.state.doc.content.size;
-            view.focus();
-            const selection = TextSelection.near(view.state.doc.resolve(endPos));
-            view.dispatch(view.state.tr.setSelection(selection));
-        });
-    }
-
-    return (
-        <div className="h-full w-full cursor-text" onClick={focusEnd}>
-            <Milkdown />
-        </div>
-    );
-}
+import { useEffect, useRef } from "react";
+import type { MarkdownEditorProps } from "../types/editor";
+import { EditorView, keymap } from "@codemirror/view";
+import { EditorState } from "@codemirror/state";
+import { markdown, markdownLanguage } from '@codemirror/lang-markdown'
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
+import { languages } from '@codemirror/language-data'
+import { syntaxHighlighting } from "@codemirror/language";
+import { liveMarkDownPlugin } from "../lib/liveMarkdownPlugin";
+import { markdownHighlightStyle } from "../lib/markdownHighlight";
 
 export default function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const viewRef = useRef<EditorView | null>(null);
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+
+        const view = new EditorView({
+            state: EditorState.create({
+                doc: value,
+                extensions: [
+                    history(),
+                    keymap.of([...defaultKeymap, ...historyKeymap]),
+                    markdown({
+                        base: markdownLanguage,
+                        codeLanguages: languages,
+                    }),
+                    syntaxHighlighting(markdownHighlightStyle),
+                    liveMarkDownPlugin,
+                    EditorView.lineWrapping,
+                    EditorView.updateListener.of((update) => {
+                        if (update.docChanged) {
+                            onChange(update.state.doc.toString());
+                        }
+                    }),
+                    EditorView.theme({
+                        '&': {
+                            height: '100%',
+                            fontFamily: 'var(--font-mono)',
+                            fontSize: '13px',
+                            backgroundColor: 'transparent',
+                            color: 'var(--color-foreground)',
+                        },
+                        '.cm-content': {
+                            padding: '0 4px 4rem 4px',
+                            caretColor: 'var(--color-accent)',
+                        },
+                        '.cm-line': {
+                            lineHeight: '1.7',
+                        },
+                        '.cm-focused': {
+                            outline: 'none',
+                        },
+                        '.cm-editor': {
+                            height: '100%',
+                        },
+                        '.cm-scroller': {
+                            fontFamily: 'var(--font-mono)',
+                            overflow: 'auto',
+                        },
+                        '&.cm-focused .cm-cursor': {
+                            borderLeftColor: 'var(--color-accent)',
+                        },
+                        '.cm-gutters': {
+                            display: 'none',
+                        },
+                    }),
+                ],
+            }),
+            parent: containerRef.current,
+        });
+
+        viewRef.current = view;
+
+        return () => {
+            view.destroy();
+        };
+    }, []);
+
+    useEffect(() => {
+        const view = viewRef.current;
+        if (!view) return;
+
+        const current = view.state.doc.toString();
+        if (current !== value) {
+            view.dispatch({
+                changes: { from: 0, to: current.length, insert: value },
+            });
+        }
+    }, [value]);
+
     return (
-        <MilkdownProvider>
-            <div className="milkdown-editor h-full w-full overflow-auto custom-scrollbar px-1">
-                <MarkdownEditorInternal value={value} onChange={onChange} />
-            </div>
-        </MilkdownProvider>
+        <div
+            ref={containerRef}
+            className="h-full w-full overflow-auto custom-scrollbar"
+        />
     )
 }

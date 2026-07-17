@@ -4,7 +4,7 @@ import { Save, Trash2, X } from "lucide-react";
 import { maskDate } from "../utils/dateUtils";
 import MarkdownEditor from "./MarkdownEditor";
 
-export default function NoteEditor({ selectedNote, onClose, onSaved, onDeleted, isDark }: NoteEditorProps) {
+export default function NoteEditor({ selectedNote, onClose, onSaved, onDeleted }: NoteEditorProps) {
     const isNew = selectedNote === '__new__';
 
     const [title, setTitle] = useState('');
@@ -35,9 +35,8 @@ export default function NoteEditor({ selectedNote, onClose, onSaved, onDeleted, 
                 setTitle(data.title);
                 setOriginalTitle(data.title)
 
-                const bodyWithoutTitle = data.content
-                    .replace(/^#{1,6}\s*.+\n*/m, '')
-                    .trim();
+                const titleLinePattern = new RegExp(`^#\\s*${escapeRegExp(data.title)}\\s*\\n*`);
+                const bodyWithoutTitle = data.content.replace(titleLinePattern, '');
                 setContent(bodyWithoutTitle);
 
                 const fm = data.frontmatter;
@@ -66,8 +65,15 @@ export default function NoteEditor({ selectedNote, onClose, onSaved, onDeleted, 
     function buildFullContent(): string {
         const tagsYaml = tags.length > 0 ? `[${tags.join(', ')}]` : '[]';
         const frontmatter = `---\ntags: ${tagsYaml}\ncompromisso: ${compromisso}\ndate: ${date}\n---`;
-        const cleanContent = content.replace(/^#{1,6}\s*.+\n*/m, '').trim();
+
+        const titleLinePattern = new RegExp(`^#\\s*${escapeRegExp(title)}\\s*\\n*`);
+        const cleanContent = content.replace(titleLinePattern, '');
+
         return `${frontmatter}\n\n# ${title}\n\n${cleanContent}`;
+    }
+
+    function escapeRegExp(text: string): string {
+        return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
     function handleSave() {

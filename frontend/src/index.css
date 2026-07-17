@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
+/* ── Base ──────────────────────────────────────────────────── */
+
 body {
     background-color: var(--color-background);
 }
+
+/* ── Theme: colors (light/dark) ───────────────────────────── */
 
 :root {
     --color-background: oklch(0.985 0.005 85);
@@ -30,6 +34,8 @@ body {
     --color-destructive: oklch(0.65 0.18 25);
 }
 
+/* ── Theme: Registration on Tailwind ────────────────────────────── */
+
 @theme inline {
     --color-background: var(--color-background);
     --color-foreground: var(--color-foreground);
@@ -46,6 +52,8 @@ body {
     --font-sans: "Instrument Sans", sans-serif;
     --font-mono: "JetBrains Mono", monospace;
 }
+
+/* ── Custom scrollbar ─────────────────────────────────── */
 
 .hide-scrollbar {
     -ms-overflow-style: none;
@@ -80,99 +88,87 @@ body {
     }
 }
 
-.milkdown-editor {
-    height: 100%;
-    width: 100%;
-}
+/* ── Markdown editor (CodeMirror) ──────────────────────────── */
 
-.milkdown-editor .ProseMirror {
+.cm-editor .cm-line {
     color: var(--color-foreground);
-    font-family: var(--font-mono);
-    font-size: 13px;
-    line-height: 1.7;
-    outline: none;
-    height: 100%;
-    width: 100%;
-    cursor: text;
-    padding-bottom: 4rem;
 }
 
-.milkdown-editor .ProseMirror:focus,
-.milkdown-editor .ProseMirror-focused {
-    outline: none;
-    border: none;
-    box-shadow: none;
-}
-
-.milkdown-editor .ProseMirror h1,
-.milkdown-editor .ProseMirror h2,
-.milkdown-editor .ProseMirror h3,
-.milkdown-editor .ProseMirror h4 {
+.cm-editor .tok-heading1 {
     font-family: var(--font-serif);
-    color: var(--color-foreground);
-    font-weight: 600;
-    margin-top: 1em;
-    margin-bottom: 0.5em;
-}
-
-.milkdown-editor .ProseMirror h1 {
     font-size: 1.6em;
-}
-
-.milkdown-editor .ProseMirror h2 {
-    font-size: 1.4em;
-}
-
-.milkdown-editor .ProseMirror h3 {
-    font-size: 1.2em;
-}
-
-.milkdown-editor .ProseMirror p {
-    margin: 0.5em 0;
-    color: var(--color-foreground);
-}
-
-.milkdown-editor .ProseMirror strong {
-    color: var(--color-foreground);
     font-weight: 600;
+    color: var(--color-foreground);
+    text-decoration: none;
 }
 
-.milkdown-editor .ProseMirror em {
+.cm-editor .tok-heading2 {
+    font-family: var(--font-serif);
+    font-size: 1.4em;
+    font-weight: 600;
     color: var(--color-foreground);
 }
 
-.milkdown-editor .ProseMirror ul,
-.milkdown-editor .ProseMirror ol {
-    padding-left: 1.4em;
-    list-style: decimal;
+.cm-editor .tok-heading3 {
+    font-family: var(--font-serif);
+    font-size: 1.2em;
+    font-weight: 600;
     color: var(--color-foreground);
 }
 
-.milkdown-editor .ProseMirror ul {
-    list-style: disc;
-}
-
-.milkdown-editor .ProseMirror li {
-    margin: 0.2em 0;
-}
-
-.milkdown-editor .ProseMirror blockquote {
-    border-left: 2px solid var(--color-accent);
-    padding-left: 1em;
+.cm-editor .tok-strong {
+    font-weight: 700;
     color: var(--color-foreground);
-    opacity: 0.8;
 }
 
-.milkdown-editor .ProseMirror code {
+.cm-editor .tok-emphasis {
+    font-style: italic;
+    color: var(--color-foreground);
+}
+
+.cm-editor .tok-strikethrough {
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.cm-editor .tok-monospace {
     background: var(--color-surface-2);
-    padding: 2px 5px;
+    padding: 1px 4px;
     border-radius: 4px;
     font-size: 0.9em;
 }
 
-.markdown-syntax-marker {
+.cm-editor .tok-link {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+.cm-editor .tok-url {
     color: var(--color-muted-foreground);
-    opacity: 0.5;
-    font-family: var(--font-mono);
-    user-select: none;
+    opacity: 0.6;
+}
+
+.cm-editor .tok-quote {
+    color: var(--color-muted-foreground);
+    font-style: italic;
+}
+
+.cm-editor .tok-list {
+    color: var(--color-accent);
+}
+
+.cm-bullet-marker {
+    color: var(--color-accent);
+    font-size: 0.6em;
+    vertical-align: middle;
+}
+
+.cm-hr-marker {
+    display: inline-block;
+    width: 100%;
+    border: none;
+    border-top: 1px solid var(--color-border-hairline);
+    margin: 0.4em 0;
+    vertical-align: middle;
 }

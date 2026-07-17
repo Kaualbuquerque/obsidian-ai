@@ -20,7 +20,7 @@ export default function TitleBar() {
             </div>
 
             <div className="flex items-center gap-2 text-[12px] text-foreground/50">
-                <span className="font-serif">Obsidius</span>
+                <span className="font-serif">Teste</span>
                 <span className="text-foreground/30">·</span>
                 <span className="tracking-[0.12em] uppercase text-[10px]">{vaultName}</span>
             </div>

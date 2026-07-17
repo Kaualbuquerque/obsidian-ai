@@ -64,7 +64,7 @@ const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ stats, calendar, note
             <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-accent" />
-                    <h1 className="font-serif text-2xl text-foreground">Obsidius</h1>
+                    <h1 className="font-serif text-2xl text-foreground">Teste</h1>
                 </div>
                 <button
                     onClick={onNewNote}
