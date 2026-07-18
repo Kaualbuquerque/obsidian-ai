@@ -71,14 +71,25 @@ const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ stats, calendar, note
             <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-accent" />
-                    <h1 className="font-serif text-2xl text-foreground">Teste</h1>
+                    <h1 className="font-serif text-2xl text-foreground">Obsidius</h1>
                 </div>
-                <button
-                    onClick={onNewNote}
-                    className="text-foreground/40 border border-accent/40 hover:text-foreground/80 hover:border-accent rounded-md transition-colors"
-                >
-                    <Plus size={20} />
-                </button>
+                <div className="flex items-center gap-1">
+                    <button
+                        onClick={handleReindex}
+                        disabled={isReindexing || isLoading}
+                        title="Reindexar cofre"
+                        className="text-foreground/40 hover:text-foreground/80 disabled:opacity-40 transition-colors p-1.5 rounded-md hover:bg-surface-2"
+                    >
+                        <RefreshCw size={16} className={isReindexing ? 'animate-spin' : ''} />
+                    </button>
+                    <button
+                        onClick={onNewNote}
+                        title="Nova nota"
+                        className="text-foreground/40 border border-accent/40 hover:text-foreground/80 hover:border-accent rounded-md transition-colors"
+                    >
+                        <Plus size={20} />
+                    </button>
+                </div>
             </div>
 
             <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/50 mb-6">
@@ -196,26 +207,7 @@ const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ stats, calendar, note
             )}
 
             <div className="mt-auto pt-6">
-                <button
-                    onClick={handleReindex}
-                    disabled={isReindexing || isLoading}
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border-hairline text-[13px] text-foreground/80 hover:border-accent/40 hover:text-foreground transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                    <span className={`transition-transform duration-700 ${isReindexing ? 'animate-spin' : ''}`}>
-                        <RefreshCw size={16} />
-                    </span>
-                    <span className="relative">
-                        {isReindexing ? 'Reindexando' : 'Reindexar Cofre'}
-                        {isReindexing && (
-                            <span className="inline-flex w-4 justify-start">
-                                <span className="animate-pulse">.</span>
-                                <span className="animate-pulse [animation-delay:0.2s]">.</span>
-                                <span className="animate-pulse [animation-delay:0.4s]">.</span>
-                            </span>
-                        )}
-                    </span>
-                </button>
-                <p className="text-center text-[11px] text-foreground/30 mt-3">
+                <p className="text-center text-[11px] text-foreground/30">
                     Vault local · offline-first
                 </p>
             </div>

@@ -5,15 +5,20 @@ from fastapi import FastAPI, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 
 from config import NOTES_DIR, configure_settings
+from monitor import start_watchdog, stop_watchdog
 from schemas import ChatRequest, NoteCreateRequest, NoteUpdateRequest, NoteRenameRequest
 from services.chat_service import ask, reset_chat_engine
 from services.notes_service import analyze_notes, reindex_notes, list_notes, get_note, create_note, update_note, \
     delete_note, rename_note, index_single_note, remove_note_from_index
 
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     configure_settings()
+    start_watchdog()
     yield
+    stop_watchdog()
+
 
 app = FastAPI(lifespan=lifespan)
 
