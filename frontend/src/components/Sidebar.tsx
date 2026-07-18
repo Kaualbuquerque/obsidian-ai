@@ -11,10 +11,10 @@ const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ stats, calendar, note
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
     useEffect(() => {
-        if (selectedTag && !Object.keys(stats.tags).includes(selectedTag)) {
+        if (selectedTag && stats && !Object.keys(stats.tags).includes(selectedTag)) {
             setSelectedTag(null);
         }
-    }, [stats.tags, selectedTag])
+    }, [stats, selectedTag]);
 
     function getDayTextColor(d: { isSelected: boolean; isToday: boolean; hasNotes: boolean; hasEvent: boolean }) {
         if (d.isSelected) return 'text-accent-foreground font-semibold';
@@ -58,7 +58,7 @@ const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ stats, calendar, note
     const eventDates = calendar ? new Set(Object.keys(calendar.events)) : new Set<string>();
     const grid = buildCalendarGrid(currentYear, currentMonth, datesWithNotes, eventDates, selectedDate);
 
-    if (isLoading) {
+    if (isLoading || !stats || !calendar) {
         return (
             <aside className="bg-surface/40 border-r border-border-hairline flex items-center justify-center">
                 <p className="text-[13px] text-foreground/40">Carregando...</p>
@@ -71,7 +71,7 @@ const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ stats, calendar, note
             <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-accent" />
-                    <h1 className="font-serif text-2xl text-foreground">Obsidius</h1>
+                    <h1 className="font-serif text-2xl text-foreground">Folio</h1>
                 </div>
                 <div className="flex items-center gap-1">
                     <button
@@ -93,7 +93,7 @@ const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ stats, calendar, note
             </div>
 
             <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/50 mb-6">
-                Inteligência para o seu cofre
+                Praticidade e organização
             </p>
 
             <div className="grid grid-cols-2 gap-3">

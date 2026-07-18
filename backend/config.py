@@ -14,7 +14,7 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 NOTES_DIR = "./test_notes"
 DATA_DIR = "./data"
-COLLECTION_NAME = "obsidian_notes"
+COLLECTION_NAME = "Folio_notes"
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 LLM_MODEL = "llama-3.3-70b-versatile"
 _settings_configured = False

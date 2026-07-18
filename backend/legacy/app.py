@@ -13,7 +13,7 @@ from watchdog.events import FileSystemEventHandler
 
 # ── Configuração da página
 st.set_page_config(
-    page_title="Obsidius",
+    page_title="Folio",
     page_icon="🟣",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -430,12 +430,12 @@ def load_engine():
         storage_context=storage_context
     )
 
-    SYSTEM_PROMPT = """Você é Obsidius, o assistente pessoal de inteligência artificial do cofre de notas do usuário.
+    SYSTEM_PROMPT = """Você é Folio, o assistente pessoal de inteligência artificial do cofre de notas do usuário.
 Responda à pergunta utilizando estritamente o contexto das notas fornecidas.
 
 Diretrizes obrigatórias:
 1. Se a resposta não puder ser encontrada nas notas, diga exatamente:
-   "Desculpe, não encontrei essa informação nas suas notas do Obsidian."
+   "Desculpe, não encontrei essa informação nas suas notas do Folio."
 2. Ao final de toda resposta, liste obrigatoriamente os arquivos usados como fonte no formato:
    Fontes: [[nome-da-nota-1]], [[nome-da-nota-2]]"""
 
@@ -516,7 +516,7 @@ with st.sidebar:
     # Header
     st.markdown(f"""
     <div class="sidebar-header">
-        <div class="sidebar-title">🟣 Obsidius</div>
+        <div class="sidebar-title">Folio</div>
         <div class="sidebar-subtitle">IA para suas notas</div>
     </div>
     """, unsafe_allow_html=True)
@@ -714,7 +714,7 @@ elif not st.session_state["history"]:
     <div class="welcome-container">
         <div class="welcome-icon">🟣</div>          
         <div class="welcome-title">
-            Olá! Eu sou o <span>Obsidius.</span>
+            Olá! Eu sou o <span>Folio.</span>
         </div>
         <div class="welcome-subtitle">
             Pergunte sobre suas notas ou peça sugestões.
@@ -742,7 +742,7 @@ else:
             st.markdown(f"""
                 <div class="msg-ai">
                     <div>
-                        <div class="sender-label">Obsidius</div>
+                        <div class="sender-label">Folio</div>
                         <div class="bubble-ai">{msg["content"]}</div>
                     </div>
                 </div>

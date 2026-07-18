@@ -32,7 +32,7 @@ Responda à pergunta utilizando estritamente o contexto das notas fornecidas.
 
 Diretrizes obrigatórias:
 1. Se a resposta não puder ser encontrada nas notas, diga exatamente:
-   "Desculpe, não encontrei essa informação nas suas notas do Obsidian."
+   "Desculpe, não encontrei essa informação nas suas notas."
 2. Ao final de toda resposta, liste obrigatoriamente os arquivos usados como fonte no formato:
    Fontes: [[nome-da-nota-1]], [[nome-da-nota-2]]"""
 
@@ -45,7 +45,7 @@ chat_engine = index.as_chat_engine(
 
 # ── Loop de chat
 print("=" * 50)
-print("Obsidian AI — Digite 'sair' para encerrar")
+print("Folio — Digite 'sair' para encerrar")
 print("=" * 50)
 
 while True:

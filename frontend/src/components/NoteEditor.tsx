@@ -223,7 +223,7 @@ export default function NoteEditor({ selectedNote, onClose, onSaved, onDeleted }
             </div>
 
             {/* Body */}
-            <div className="flex-1 px-6 py-4 overflow-hidden">
+            <div className="flex-1 py-4 overflow-hidden">
                 <MarkdownEditor
                     value={content}
                     onChange={setContent}
