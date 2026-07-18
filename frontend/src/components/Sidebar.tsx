@@ -1,4 +1,4 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { buildCalendarGrid, MONTH_NAMES, WEEKDAY_LABELS } from "../utils/calendarUtils";
 import { Plus, RefreshCw } from "lucide-react";
 import type { SideBarProps, SidebarHandle } from "../types/sidebar";
@@ -10,6 +10,11 @@ const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ stats, calendar, note
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
+    useEffect(() => {
+        if (selectedTag && !Object.keys(stats.tags).includes(selectedTag)) {
+            setSelectedTag(null);
+        }
+    }, [stats.tags, selectedTag])
 
     function getDayTextColor(d: { isSelected: boolean; isToday: boolean; hasNotes: boolean; hasEvent: boolean }) {
         if (d.isSelected) return 'text-accent-foreground font-semibold';
@@ -39,7 +44,9 @@ const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ stats, calendar, note
         const monthStr = String(currentMonth).padStart(2, '0');
         const dayStr = String(day).padStart(2, '0');
         const dateKey = `${currentYear}-${monthStr}-${dayStr}`;
+
         setSelectedDate((prev) => (prev === dateKey ? null : dateKey));
+        setSelectedTag(null);
     }
 
     function handleReindex() {
@@ -139,7 +146,10 @@ const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ stats, calendar, note
                     {Object.entries(stats.tags).map(([tag, count]) => (
                         <button
                             key={tag}
-                            onClick={() => setSelectedTag((prev) => (prev === tag ? null : tag))}
+                            onClick={() => {
+                                setSelectedTag((prev) => (prev === tag ? null : tag));
+                                setSelectedDate(null);
+                            }}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[13px] transition-colors
                                 ${selectedTag === tag
                                     ? 'border-accent text-accent bg-accent-soft'
