@@ -45,6 +45,7 @@ export default function MarkdownEditor({ value, onChange }: MarkdownEditorProps)
                         '.cm-content': {
                             padding: '0 4px 4rem 4px',
                             caretColor: 'var(--color-accent)',
+                            
                         },
                         '.cm-line': {
                             lineHeight: '1.7',
