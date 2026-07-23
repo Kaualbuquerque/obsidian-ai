@@ -220,3 +220,32 @@ body {
 .cm-wikilink:hover {
     text-decoration-color: var(--color-accent);
 }
+
+.cm-table-wrapper {
+    margin: 0.8em 0;
+    overflow-x: auto;
+}
+
+.cm-table {
+    border-collapse: collapse;
+    width: 100%;
+    font-family: var(--font-sans);
+    font-size: 13px;
+}
+
+.cm-table th,
+.cm-table td {
+    border: 1px solid var(--color-border-hairline);
+    padding: 6px 10px;
+    text-align: left;
+}
+
+.cm-table th {
+    background: var(--color-surface-2);
+    font-weight: 600;
+    color: var(--color-foreground);
+}
+
+.cm-table td {
+    color: var(--color-foreground);
+}

@@ -8,6 +8,7 @@ import { languages } from '@codemirror/language-data'
 import { syntaxHighlighting } from "@codemirror/language";
 import { liveMarkDownPlugin } from "../lib/liveMarkdownPlugin";
 import { markdownHighlightStyle } from "../lib/markdownHighlight";
+import { Table } from "@lezer/markdown";
 
 export default function MarkdownEditor({ value, onChange, onNoteClick }: MarkdownEditorProps) {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -27,6 +28,7 @@ export default function MarkdownEditor({ value, onChange, onNoteClick }: Markdow
                     markdown({
                         base: markdownLanguage,
                         codeLanguages: languages,
+                        extensions: [Table],
                     }),
                     syntaxHighlighting(markdownHighlightStyle),
                     liveMarkDownPlugin,
