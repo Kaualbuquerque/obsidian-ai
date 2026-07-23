@@ -61,14 +61,8 @@ def get_notes_calendar():
         for note, creation_date in data["creation_dates"].items()
     }
 
-    events = {
-        event_date.isoformat(): description
-        for event_date, description in data["events"].items()
-    }
-
     return {
         "dates": dates,
-        "events": events
     }
 
 

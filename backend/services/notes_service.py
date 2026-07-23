@@ -36,11 +36,8 @@ def format_date(d: date) -> str:
 
 
 def note_template(title: str = "Nova nota") -> str:
-    today = format_date(date.today())
     return f"""---
 Tags: []
-compromisso: 
-date: {today}
 ---
 
 # {title}
@@ -55,7 +52,6 @@ def analyze_notes() -> dict:
     total = len(files)
     tags_count = {}
     creation_dates = {}
-    events = {}
     received_links = {f.stem: 0 for f in files}
 
     for file in files:
@@ -71,9 +67,6 @@ def analyze_notes() -> dict:
         creation_date = date.fromtimestamp(stat.st_ctime)
         creation_dates[file.stem] = creation_date
 
-        if fm.get("compromisso"):
-            events[creation_date] = fm.get("compromisso")
-
         text = file.read_text(encoding="utf-8", errors="ignore")
         links = re.findall(r'\[\[([^\]]+)\]\]', text)
         for link in links:
@@ -87,7 +80,6 @@ def analyze_notes() -> dict:
         "total": total,
         "tags": dict(sorted(tags_count.items(), key=lambda x: x[1], reverse=True)),
         "creation_dates": creation_dates,
-        "events": events,
         "orphans": orphans
     }
 

@@ -6,7 +6,6 @@ export interface NotesStats {
 
 export interface NotesCalendar {
     dates: Record<string, string>;
-    events: Record<string, string>;
 }
 
 export interface Notes {

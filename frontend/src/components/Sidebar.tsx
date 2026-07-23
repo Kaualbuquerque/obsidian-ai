@@ -16,9 +16,9 @@ const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ stats, calendar, note
         }
     }, [stats, selectedTag]);
 
-    function getDayTextColor(d: { isSelected: boolean; isToday: boolean; hasNotes: boolean; hasEvent: boolean }) {
+    function getDayTextColor(d: { isSelected: boolean; isToday: boolean; hasNotes: boolean }) {
         if (d.isSelected) return 'text-accent-foreground font-semibold';
-        if (d.hasNotes || d.hasEvent) return 'text-foreground';
+        if (d.hasNotes) return 'text-foreground';
         return 'text-foreground/40';
     }
 
@@ -55,8 +55,7 @@ const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ stats, calendar, note
     }
 
     const datesWithNotes = calendar ? new Set(Object.values(calendar.dates)) : new Set<string>();
-    const eventDates = calendar ? new Set(Object.keys(calendar.events)) : new Set<string>();
-    const grid = buildCalendarGrid(currentYear, currentMonth, datesWithNotes, eventDates, selectedDate);
+    const grid = buildCalendarGrid(currentYear, currentMonth, datesWithNotes, selectedDate);
 
     if (isLoading || !stats || !calendar) {
         return (
@@ -139,8 +138,8 @@ const Sidebar = forwardRef<SidebarHandle, SideBarProps>(({ stats, calendar, note
                                     `}
                                 >
                                     {d.day}
-                                    {(d.hasNotes || d.hasEvent) && !d.isSelected && (
-                                        <span className={`absolute bottom-0.5 w-1 h-1 rounded-full ${d.hasEvent ? 'bg-accent' : 'bg-foreground/30'}`} />
+                                    {d.hasNotes && !d.isSelected && (
+                                        <span className="absolute bottom-0.5 w-1 h-1 rounded-full bg-foreground/30" />
                                     )}
                                 </button>
                             )}

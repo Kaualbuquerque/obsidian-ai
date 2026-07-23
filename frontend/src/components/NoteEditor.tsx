@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import type { NoteDetail, NoteEditorProps } from "../types/notes";
 import { Save, Trash2, X } from "lucide-react";
-import { maskDate } from "../utils/dateUtils";
 import MarkdownEditor from "./MarkdownEditor";
 
 export default function NoteEditor({ selectedNote, onClose, onSaved, onDeleted, onNoteClick }: NoteEditorProps) {
@@ -9,8 +8,6 @@ export default function NoteEditor({ selectedNote, onClose, onSaved, onDeleted, 
 
     const [title, setTitle] = useState('');
     const [tagInput, setTagInput] = useState('');
-    const [compromisso, setCompromisso] = useState('');
-    const [date, setDate] = useState('');
     const [content, setContent] = useState('');
     const [originalTitle, setOriginalTitle] = useState('');
     const [tags, setTags] = useState<string[]>([]);
@@ -19,12 +16,8 @@ export default function NoteEditor({ selectedNote, onClose, onSaved, onDeleted, 
 
     useEffect(() => {
         if (isNew) {
-            const today = new Date();
-            const formatted = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
             setTitle('Nova nota');
             setTags([]);
-            setCompromisso('');
-            setDate(formatted);
             setContent('');
             return;
         }
@@ -42,8 +35,6 @@ export default function NoteEditor({ selectedNote, onClose, onSaved, onDeleted, 
                 const fm = data.frontmatter;
                 const rawTags = fm.tags ?? [];
                 setTags(Array.isArray(rawTags) ? rawTags : [rawTags]);
-                setCompromisso(fm.compromisso ?? '');
-                setDate(fm.date ?? '');
             });
     }, [selectedNote]);
 
@@ -64,7 +55,7 @@ export default function NoteEditor({ selectedNote, onClose, onSaved, onDeleted, 
 
     function buildFullContent(): string {
         const tagsYaml = tags.length > 0 ? `[${tags.join(', ')}]` : '[]';
-        const frontmatter = `---\ntags: ${tagsYaml}\ncompromisso: ${compromisso}\ndate: ${date}\n---`;
+        const frontmatter = `---\ntags: ${tagsYaml}\n---`;
 
         const titleLinePattern = new RegExp(`^#\\s*${escapeRegExp(title)}\\s*\\n*`);
         const cleanContent = content.replace(titleLinePattern, '');
@@ -196,29 +187,6 @@ export default function NoteEditor({ selectedNote, onClose, onSaved, onDeleted, 
                         placeholder="+ Adicionar tag (Enter para confirmar)"
                         className="w-full bg-transparent text-[13px] text-foreground placeholder:text-foreground/30 outline-none"
                     />
-                </div>
-
-                {/* Commitment and Date */}
-                <div className="grid grid-cols-2 gap-3">
-                    <div>
-                        <p className="text-[10px] uppercase tracking-[0.12em] text-foreground/40 mb-1">Compromisso</p>
-                        <input
-                            value={compromisso}
-                            onChange={(e) => setCompromisso(e.target.value)}
-                            placeholder="Nenhum"
-                            className="w-full bg-transparent text-[13px] text-foreground placeholder:text-foreground/30 outline-none"
-                        />
-                    </div>
-                    <div>
-                        <p className="text-[10px] uppercase tracking-[0.12em] text-foreground/40 mb-1">Data</p>
-                        <input
-                            value={date}
-                            onChange={(e) => setDate(maskDate(e.target.value))}
-                            placeholder="dd/mm/aaaa"
-                            maxLength={10}
-                            className="w-full bg-transparent text-[13px] text-foreground placeholder:text-foreground/30 outline-none"
-                        />
-                    </div>
                 </div>
             </div>
 
